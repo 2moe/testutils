@@ -10,7 +10,7 @@ categories = ["development-tools"]
 readme = "docs/Readme.md"
 repository = "https://github.com/2moe/testutils"
 description = """
-Offers a range of utility functions, macros, and tools, such as `dbg_ref!()`, `os_cmd::Runner`, and `simple_benchmark()`, designed for testing purposes.
+Offers a range of utility functions, macros, and tools, such as `simple_benchmark()` and `dbg_ref!()`, `os_cmd::Runner`, designed for testing purposes.
 """
 exclude = ["/rust-toolchain.toml"]
 

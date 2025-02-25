@@ -6,7 +6,7 @@ A utility library providing various helper functions, macros, and tools for Rust
 
 [![Documentation](https://docs.rs/testutils/badge.svg)](https://docs.rs/testutils)
 
-[![Apache-2 licensed](https://img.shields.io/crates/l/testutils.svg)](./License)
+[![Apache-2 licensed](https://img.shields.io/crates/l/testutils.svg)](../License)
 
 [中文](./Readme-zh.md)
 
