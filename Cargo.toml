@@ -1,0 +1,45 @@
+[package]
+name = "testutils"
+version = "0.0.0"
+rust-version = "1.85"
+edition = "2024"
+license = "Apache-2.0"
+authors = ["Moe <m@tmoe.me>"]
+keywords = ["test", "utils"]
+categories = ["development-tools"]
+readme = "docs/Readme.md"
+repository = "https://github.com/2moe/testutils"
+description = """
+Offers a range of utility functions, macros, and tools, such as `dbg_ref!()`, `os_cmd::Runner`, and `simple_benchmark()`, designed for testing purposes.
+"""
+exclude = ["/rust-toolchain.toml"]
+
+[features]
+default = ["all"]
+all = ["std", "os_cmd", "ext_traits", "tiny_container"]
+# ------------
+std = ["compact_str?/std", "tinyvec_string?/std", "shlex?/std"]
+ext_traits = []
+tiny_container = ["dep:tinyvec_string"]
+os_cmd = ["std", "dep:shlex", "ext_traits", "tiny_container", "dep:compact_str"]
+
+[dependencies]
+compact_str = { version = "0.9.0", default-features = false, optional = true }
+getset = "0.1.4"
+log = "0.4.26"
+shlex = { version = "1.3.0", default-features = false, optional = true }
+tap = "1.0.1"
+tinyvec_string = { version = "0.3.2", optional = true, default-features = false, features = [
+    "alloc",
+    "rustc_1_57",
+] }
+[package.metadata.docs.rs]
+all-features = true
+# targets = ["x86_64-unknown-linux-gnu"]
+rustdoc-args = ["--cfg", "__unstable_doc"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(__unstable_doc)'] }
+
+[dev-dependencies]
+env_logger = "0.11.6"
