@@ -1,10 +1,7 @@
 use getset::{CopyGetters, WithSetters};
 use tap::Pipe;
 
-use crate::{
-  os_cmd::{CommandRepr, Runner, presets::TinyCfg},
-  tiny_container::IntoBoxedSlice,
-};
+use crate::os_cmd::{CommandRepr, Runner, presets::TinyCfg};
 
 #[derive(Debug, Clone, WithSetters, CopyGetters)]
 #[getset(set_with = "pub", get_copy = "pub with_prefix")]

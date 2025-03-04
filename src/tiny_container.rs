@@ -50,39 +50,6 @@ impl<const N: usize> Formattable<N> for TString<N> {
   }
 }
 
-pub trait IntoBoxedSlice {
-  type Item;
-  fn into_boxed_slice(self) -> Box<[Self::Item]>;
-  fn into_vec(self) -> Vec<Self::Item>;
-}
-
-impl<A: Array> IntoBoxedSlice for TinyVec<A> {
-  type Item = A::Item;
-  /// Converts a `TinyVec<T>` into a `Box<[T]>`.
-  ///
-  /// ## Example
-  ///
-  /// ```
-  /// use testutils::tiny_container::{TinyVec, IntoBoxedSlice};
-  ///
-  /// let v = TinyVec::from([1, 2, 3]);
-  /// let _boxed: Box<[u8]> = v.into_boxed_slice();
-  /// ```
-  fn into_boxed_slice(self) -> Box<[Self::Item]> {
-    self
-      .into_vec()
-      .into_boxed_slice()
-  }
-
-  fn into_vec(self) -> Vec<Self::Item> {
-    use TinyVec::*;
-    match self {
-      Inline(mut inner) => inner.drain_to_vec(),
-      Heap(inner) => inner,
-    }
-  }
-}
-
 pub trait IntoBoxedStr {
   fn into_boxed_str(self) -> Box<str>;
   fn into_string(self) -> String;

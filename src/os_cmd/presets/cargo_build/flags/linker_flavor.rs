@@ -28,7 +28,7 @@ impl LinkerFlavor {
       LD => "ld",
       MSVC => "msvc",
       WasmLD => "wasm-ld",
-      DarwinLLVMLLD => "ld64.link_self_contained",
+      DarwinLLVMLLD => "ld64.lld",
       GNUbinutilsLLVMLLD => "ld.lld",
       MSLinkExeLLD => "lld-link",
       Ignore => "",

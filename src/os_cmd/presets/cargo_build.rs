@@ -73,6 +73,7 @@ pub struct CargoBuild {
   rust_flags: flags::RustFlags,
   // use_os_cmd_to_set_env: bool,
   nightly: bool,
+  cargo: MiniStr,
   sub_command: SubCmd,
   profile: MiniStr,
   pkg: MiniStr,
@@ -103,6 +104,7 @@ impl Default for CargoBuild {
   ///         other_flags: [],
   ///     },
   ///     nightly: false,
+  ///     cargo: "cargo",
   ///     sub_command: Build,
   ///     profile: "release",
   ///     pkg: "",
@@ -141,6 +143,7 @@ impl Default for CargoBuild {
     Self {
       rust_flags: Default::default(),
       nightly: false,
+      cargo: "cargo".into(),
       sub_command: Default::default(),
       profile: "release".into(),
       pkg: "".into(),
@@ -182,6 +185,7 @@ impl CargoBuild {
   pub fn into_vec(self) -> Vec<MiniStr> {
     let CargoBuild {
       rust_flags,
+      cargo,
       sub_command,
       nightly,
       profile,
@@ -202,34 +206,36 @@ impl CargoBuild {
 
     unsafe { env::set_var("RUSTFLAGS", rust_flags_value) }
 
-    "cargo"
-      .pipe(MiniStr::const_new)
-      .pipe(core::iter::once)
-      .chain(nightly.then(|| "+nightly".into()))
-      .chain(
-        sub_command
-          .as_str()
-          .to_compact_string()
-          .pipe(Some),
-      )
-      // --profile {profile}
-      .chain(try_into_long_arg("profile", profile))
-      // --package {pkg}
-      .chain(try_into_long_arg("package", pkg))
-      // --target {target.as_ref()}
-      .chain(try_into_long_arg("target", target))
-      .chain(all_features.then(|| "--all-features".into()))
-      .chain(no_default_features.then(|| "--no-default-features".into()))
-      // --features {features.join(",")}
-      .chain(match features {
-        x if x.is_empty() => None,
-        feats => Some(fmt_compact!("--features={}", feats.join(","))),
-      })
-      // --build-std {build_std.to_args()}
-      .chain(build_std.to_args())
-      .chain(build_std_features.to_args())
-      .chain(other_args)
-      .collect()
+    match cargo {
+      c if c.is_empty() => "cargo".into(),
+      c => c,
+    }
+    .pipe(core::iter::once)
+    .chain(nightly.then(|| "+nightly".into()))
+    .chain(
+      sub_command
+        .as_str()
+        .to_compact_string()
+        .pipe(Some),
+    )
+    // --profile {profile}
+    .chain(try_into_long_arg("profile", profile))
+    // --package {pkg}
+    .chain(try_into_long_arg("package", pkg))
+    // --target {target.as_ref()}
+    .chain(try_into_long_arg("target", target))
+    .chain(all_features.then(|| "--all-features".into()))
+    .chain(no_default_features.then(|| "--no-default-features".into()))
+    // --features {features.join(",")}
+    .chain(match features {
+      x if x.is_empty() => None,
+      feats => Some(fmt_compact!("--features={}", feats.join(","))),
+    })
+    // --build-std {build_std.to_args()}
+    .chain(build_std.to_args())
+    .chain(build_std_features.to_args())
+    .chain(other_args)
+    .collect()
   }
 }
 

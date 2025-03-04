@@ -1,10 +1,7 @@
 use getset::{CopyGetters, WithSetters};
 use tap::Pipe;
 
-use crate::{
-  os_cmd::{CommandRepr, presets::TinyCfg},
-  tiny_container::IntoBoxedSlice,
-};
+use crate::os_cmd::{CommandRepr, Runner, presets::TinyCfg};
 
 #[derive(Debug, Clone, WithSetters, CopyGetters)]
 #[getset(set_with = "pub", get_copy = "pub with_prefix")]
@@ -48,10 +45,8 @@ impl From<CargoFmt> for CommandRepr<'_> {
   /// ```
   #[allow(clippy::unnecessary_lazy_evaluations)]
   fn from(value: CargoFmt) -> Self {
-    use core::iter::once;
-
     "cargo"
-      .pipe(once)
+      .pipe(core::iter::once)
       .chain(
         value
           .get_nightly()
@@ -61,6 +56,13 @@ impl From<CargoFmt> for CommandRepr<'_> {
       .collect::<TinyCfg<3>>()
       .into_boxed_slice()
       .pipe(CommandRepr::Slice)
+  }
+}
+
+impl From<CargoFmt> for Runner<'_> {
+  fn from(value: CargoFmt) -> Self {
+    Self::default() //
+      .with_command(value.into())
   }
 }
 
