@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.0.5 (upcoming)
+
+- feat: add impl `<&str>` for SubCmd
+
 ## 0.0.4
 
 - feat(CargoCmd.profile): MiniStr -> CargoProfile

@@ -12,6 +12,21 @@ pub enum SubCmd {
   Custom(MiniStr),
 }
 
+impl From<&str> for SubCmd {
+  fn from(value: &str) -> Self {
+    use SubCmd::*;
+    match value {
+      "build" => Build,
+      "run" => Run,
+      "test" => Test,
+      "bench" => Bench,
+      "check" => Check,
+      "rustc" => Rustc,
+      v => Self::Custom(v.into()),
+    }
+  }
+}
+
 impl SubCmd {
   const fn ignore_custom_as_str(&self) -> &str {
     use SubCmd::*;
