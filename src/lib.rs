@@ -24,7 +24,7 @@
 
 - **os_cmd**
   Configurable command builders:
-  - Preconfigured cargo command structs (e.g., `CargoDoc`, `CargoBuild`)
+  - Preconfigured cargo command structs (e.g., `CargoDoc`, `CargoCmd`)
   - Cross-platform command execution utilities
 */
 extern crate alloc;
@@ -117,20 +117,51 @@ macro_rules! get_pkg_name {
 /// 3. Multiple arguments generate separate log entries
 #[macro_export]
 macro_rules! dbg_ref {
-    ($val:expr $(,)?) => {{
-        match &$val {
-            tmp => {
-                log::debug!(
-                    "{name}: {type_name} = {tmp:?}",
-                    name = stringify!($val),
-                    type_name = core::any::type_name_of_val(&$val),
-                );
-            }
-        }
-    }};
-    ($($val:expr),+ $(,)?) => {
-        ($($crate::dbg_ref!($val)),+,)
-    };
+  ($val:expr $(,)?) => {{
+    match &$val {
+      tmp => {
+        log::debug!(
+          "{name}: {type_name} = {tmp:?}",
+          name = stringify!($val),
+          type_name = core::any::type_name_of_val(tmp),
+        );
+      }
+    }
+  }};
+  ($($val:expr),+ $(,)?) => {
+    ($($crate::dbg_ref!($val)),+,)
+  };
+}
+
+/// Outputs the information of the expression(s) to stderr.
+///
+/// ```
+/// use testutils::dbg;
+/// let width = 30;
+/// let label = "size";
+///
+/// dbg!(width, label);
+/// // Outputs:
+/// //  width: i32 = 30
+/// //  label: &str = "size"
+/// ```
+#[cfg(feature = "std")]
+#[macro_export]
+macro_rules! dbg {
+  ($val:expr $(,)?) => {{
+    match &$val {
+      tmp => {
+        eprintln!(
+          "\u{1B}[35m{name}\u{1B}[0m: \u{1B}[33m{type_name}\u{1B}[0m = {tmp:?}",
+          name = stringify!($val),
+          type_name = core::any::type_name_of_val(tmp),
+        );
+      }
+    }
+  }};
+  ($($val:expr),+ $(,)?) => {
+    ($($crate::dbg_ref!($val)),+,)
+  };
 }
 
 /// Generates a list of tuples containing field names and their values

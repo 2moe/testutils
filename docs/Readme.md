@@ -32,9 +32,11 @@ A utility library providing various helper functions, macros, and tools for Rust
     - Adds `.into_boxed_str()` conversion
 
 - **os_cmd**
-  Configurable command builders:
-  - Preconfigured cargo command structs (e.g., `CargoDoc`, `CargoBuild`)
-  - Cross-platform command execution utilities
+  - Configurable command builders:
+    - Preconfigured cargo command structs (e.g., `CargoDoc`, `CargoCmd`)
+    - Cross-platform command execution utilities
+  - `RunnableCommand` trait
+    - Provides `.run()`
 
 ## Macros
 
@@ -42,7 +44,7 @@ A utility library providing various helper functions, macros, and tools for Rust
 
 Prints debug information using `log::debug!` instead of direct stderr output. Displays both the type and value of the passed argument.
 
-**Comparison with `dbg!`**:
+**Comparison with `std::dbg!`**:
 
 - Uses structured logging instead of direct stderr output
 - Requires logger initialization (e.g., `env_logger`)
@@ -60,6 +62,20 @@ dbg_ref!(y); // Prints: [DEBUG] y: &str = "hello"
 
 let z = vec![1, 2, 3];
 dbg_ref!(z); // Prints: [DEBUG] z: alloc::vec::Vec<i32> = [1, 2, 3]
+```
+
+### `dbg!`
+
+Similar to `dbg_ref!`, but outputs content using `eprintln!` instead of `log::debug!`.
+
+```rust
+use testutils::dbg;
+
+let x = 42;
+dbg!(x); // Prints: x: i32 = 42
+
+let y = "hello";
+dbg!(y); // Prints: y: &str = "hello"
 ```
 
 ### `generate_struct_arr!`
@@ -157,8 +173,7 @@ CargoDoc {
 use std::io;
 use testutils::{
   get_pkg_name,
-  os_cmd::{Runner, presets::CargoDoc},
-  traits::Pipe,
+  os_cmd::{RunnableCommand, presets::CargoDoc},
 };
 
 #[ignore]
@@ -166,7 +181,6 @@ use testutils::{
 fn build_and_open_rust_doc() -> io::Result<()> {
   CargoDoc::default()
     .with_pkg(get_pkg_name!())
-    .pipe(Runner::from)
     .run()
 }
 ```
@@ -203,7 +217,7 @@ fn configure_cargo_doc() {
 - `with_enable_private_items()`: Toggle private item inclusion
 - `with_all_features()`: Control feature activation
 
-### Preset Command: `CargoBuild`
+### Preset Command: `CargoCmd`
 
 Configuration struct for `cargo build` command generation.
 
@@ -212,7 +226,7 @@ Used to generate precise cargo command-line arguments.
 ### Default
 
 ```rust
-CargoBuild {
+CargoCmd {
     rust_flags: RustFlags {
         crt_static: None,
         prefer_dynamic: None,
@@ -263,7 +277,7 @@ CargoBuild {
 
 
 ```rust
-let vec = CargoBuild::default()
+let vec = CargoCmd::default()
   .with_nightly(true)  // Enables nightly channel features
   .with_pkg(get_pkg_name!().into())  // Macro-based package detection
   .with_target(RustcTarget::aarch64_linux_android)  // enum Target

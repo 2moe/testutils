@@ -15,15 +15,16 @@
   - 提供了 IntoBoxedStr trait (`into_boxed_str()`)
 - os_cmd
   - 提供了一些可配置的 Cargo 命令的结构体
-    - 比如 CargoDoc, CargoBuild
+    - 比如 CargoDoc, CargoCmd
+  - 提供了 RunnableCommand Trait
 
 ## macros
 
 ### dbg_ref
 
-`dbg_ref!()` 会输出传入参数的类型以及值，主要用于调试。
+`dbg_ref!` 会输出传入参数的类型以及值，主要用于调试。
 
-与 `dbg!()` 不同的是，它内部使用了 `log::debug!()` 来输出，而不是直接 (用`eprintln!`) 输出到 stderr。
+与 `std::dbg!` 不同的是，它内部使用了 `log::debug!` 来输出，而不是直接 (用`eprintln!`) 输出到 stderr。
 
 ```rust
 use testutils::dbg_ref;
@@ -37,6 +38,20 @@ dbg_ref!(y); // Prints: [DEBUG] y: &str = "hello"
 
 let z = vec![1, 2, 3];
 dbg_ref!(z); // Prints: [DEBUG] z: alloc::vec::Vec<i32> = [1, 2, 3]
+```
+
+### `dbg!`
+
+通过 `eprintln!` 而不是 `log::debug!` 来输出。
+
+```rust
+use testutils::dbg;
+
+let x = 42;
+dbg!(x); // Prints: x: i32 = 42
+
+let y = "hello";
+dbg!(y); // Prints: y: &str = "hello"
 ```
 
 ### generate_struct_arr
@@ -131,8 +146,7 @@ CargoDoc {
 use std::io;
 use testutils::{
   get_pkg_name,
-  os_cmd::{Runner, presets::CargoDoc},
-  traits::Pipe,
+  os_cmd::{RunnableCommand, presets::CargoDoc},
 };
 
 #[ignore]
@@ -140,7 +154,6 @@ use testutils::{
 fn build_and_open_rust_doc() -> io::Result<()> {
   CargoDoc::default()
     .with_pkg(get_pkg_name!())
-    .pipe(Runner::from)
     .run()
 }
 ```
@@ -174,12 +187,12 @@ fn configure_cargo_doc() {
 }
 ```
 
-## CargoBuild
+## CargoCmd
 
 ### Default
 
 ```rust
-CargoBuild {
+CargoCmd {
     rust_flags: RustFlags {
         crt_static: None,
         prefer_dynamic: None,
@@ -236,13 +249,13 @@ use testutils::{
   os_cmd::{
     Runner,
     presets::{
-      CargoBuild,
+      CargoCmd,
       cargo_build::{BuildStd, BuildStdFeatures, RustcTarget},
     },
   },
 };
 
-let vec = CargoBuild::default()
+let vec = CargoCmd::default()
   .with_nightly(true)
   .with_pkg(get_pkg_name!().into())
   .with_target(RustcTarget::aarch64_linux_android)

@@ -1,7 +1,7 @@
 use getset::{CopyGetters, WithSetters};
 use tap::Pipe;
 
-use crate::os_cmd::{CommandRepr, Runner, presets::TinyCfg};
+use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::TinyCfg};
 
 #[derive(Debug, Clone, WithSetters, CopyGetters)]
 #[getset(set_with = "pub", get_copy = "pub with_prefix")]
@@ -65,6 +65,8 @@ impl From<CargoFmt> for Runner<'_> {
       .with_command(value.into())
   }
 }
+
+impl RunnableCommand<'_> for CargoFmt {}
 
 #[cfg(test)]
 mod tests {

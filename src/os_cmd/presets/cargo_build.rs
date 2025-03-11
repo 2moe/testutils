@@ -5,7 +5,7 @@ use compact_str::ToCompactString;
 use getset::{Getters, WithSetters};
 use tap::{Pipe, Tap};
 
-use crate::os_cmd::{CommandRepr, MiniStr, Runner, fmt_compact};
+use crate::os_cmd::{CommandRepr, MiniStr, RunnableCommand, Runner, fmt_compact};
 
 mod sub_cmd;
 pub use sub_cmd::SubCmd;
@@ -31,13 +31,13 @@ pub use build_std_features::BuildStdFeatures;
 ///   os_cmd::{
 ///     Runner,
 ///     presets::{
-///       CargoBuild,
+///       CargoCmd,
 ///       cargo_build::{BuildStd, BuildStdFeatures},
 ///     },
 ///   },
 /// };
 ///
-/// let vec = CargoBuild::default()
+/// let vec = CargoCmd::default()
 ///   .with_nightly(true)
 ///   .with_pkg(get_pkg_name!().into())
 ///   .with_build_std(
@@ -69,7 +69,7 @@ pub use build_std_features::BuildStdFeatures;
 /// ```
 ///
 /// See also: [The cargo book](https://doc.rust-lang.org/cargo/reference/unstable.html)
-pub struct CargoBuild {
+pub struct CargoCmd {
   rust_flags: flags::RustFlags,
   // use_os_cmd_to_set_env: bool,
   nightly: bool,
@@ -78,6 +78,7 @@ pub struct CargoBuild {
   profile: MiniStr,
   pkg: MiniStr,
   target: RustcTarget,
+  all_workspaces: bool,
   all_features: bool,
   no_default_features: bool,
   features: Box<[MiniStr]>,
@@ -86,11 +87,13 @@ pub struct CargoBuild {
   other_args: Box<[MiniStr]>,
 }
 
-impl Default for CargoBuild {
+impl RunnableCommand<'_> for CargoCmd {}
+
+impl Default for CargoCmd {
   /// Default:
   ///
   /// ```ignore
-  /// CargoBuild {
+  /// CargoCmd {
   ///     rust_flags: RustFlags {
   ///         crt_static: None,
   ///         prefer_dynamic: None,
@@ -148,6 +151,7 @@ impl Default for CargoBuild {
       profile: "release".into(),
       pkg: "".into(),
       target: Default::default(),
+      all_workspaces: false,
       all_features: false,
       no_default_features: false,
       features: Default::default(),
@@ -179,11 +183,11 @@ pub trait ArgConverter {
   fn to_args(&self) -> Self::ArgsIter;
 }
 
-impl CargoBuild {
-  /// Collects all CargoBuild options into a vec
+impl CargoCmd {
+  /// Collects all CargoCmd options into a vec
   #[allow(clippy::unnecessary_lazy_evaluations)]
   pub fn into_vec(self) -> Vec<MiniStr> {
-    let CargoBuild {
+    let CargoCmd {
       rust_flags,
       cargo,
       sub_command,
@@ -191,6 +195,7 @@ impl CargoBuild {
       profile,
       pkg,
       target,
+      all_workspaces,
       all_features,
       no_default_features,
       features,
@@ -222,6 +227,8 @@ impl CargoBuild {
     .chain(try_into_long_arg("profile", profile))
     // --package {pkg}
     .chain(try_into_long_arg("package", pkg))
+    // --workspace
+    .chain(all_workspaces.then(|| "--workspace".into()))
     // --target {target.as_ref()}
     .chain(try_into_long_arg("target", target))
     .chain(all_features.then(|| "--all-features".into()))
@@ -239,8 +246,8 @@ impl CargoBuild {
   }
 }
 
-impl From<CargoBuild> for CommandRepr<'_> {
-  fn from(value: CargoBuild) -> Self {
+impl From<CargoCmd> for CommandRepr<'_> {
+  fn from(value: CargoCmd) -> Self {
     value
       .into_vec()
       .into_boxed_slice()
@@ -248,8 +255,8 @@ impl From<CargoBuild> for CommandRepr<'_> {
   }
 }
 
-impl From<CargoBuild> for Runner<'_> {
-  fn from(value: CargoBuild) -> Self {
+impl From<CargoCmd> for Runner<'_> {
+  fn from(value: CargoCmd) -> Self {
     Self::default() //
       .with_command(value.into())
   }
@@ -270,13 +277,13 @@ mod tests {
       os_cmd::{
         Runner,
         presets::{
-          CargoBuild,
+          CargoCmd,
           cargo_build::{BuildStd, BuildStdFeatures, RustcTarget},
         },
       },
     };
 
-    let vec = CargoBuild::default()
+    let vec = CargoCmd::default()
       .with_nightly(true)
       .with_pkg(get_pkg_name!().into())
       .with_target(RustcTarget::aarch64_linux_android)
@@ -313,7 +320,7 @@ mod tests {
   #[ignore]
   #[test]
   fn show_default_cargo_build() {
-    use crate::os_cmd::presets::CargoBuild;
-    CargoBuild::default().pipe(|x| dbg!(x));
+    use crate::os_cmd::presets::CargoCmd;
+    CargoCmd::default().pipe(|x| dbg!(x));
   }
 }

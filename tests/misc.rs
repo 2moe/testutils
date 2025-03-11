@@ -21,7 +21,7 @@ fn test_cargo_fmt_cmd() {
 
 #[ignore]
 #[test]
-fn test_dbg_ref() {
+fn test_dbg_ref_macro() {
   use testutils::dbg_ref;
   init_logger();
 
@@ -43,4 +43,26 @@ fn test_dbg_ref() {
   // Prints:
   // [DEBUG] a: i32 = 10
   // [DEBUG] b: bool = true
+}
+
+#[ignore]
+#[test]
+fn test_dbg_macro() {
+  use testutils::dbg;
+
+  let x = 42;
+  dbg!(x); // Prints: x: i32 = 42
+
+  let y = "hello";
+  dbg!(y); // Prints: y: &str = "hello"
+
+  let z = vec![1, 2, 3];
+  dbg!(z); // Prints: z: alloc::vec::Vec<i32> = [1, 2, 3]
+
+  let a = 10;
+  let b = true;
+  dbg!(a, b);
+  // Prints:
+  //  a: i32 = 10
+  //  b: bool = true
 }

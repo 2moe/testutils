@@ -1,12 +1,9 @@
 use std::io;
 
-use tap::Pipe;
-use testutils::os_cmd::{Runner, presets::CargoFmt};
+use testutils::os_cmd::{RunnableCommand, presets::CargoFmt};
 
 #[ignore]
 #[test]
 fn fmt() -> io::Result<()> {
-  CargoFmt::default()
-    .pipe(Runner::from)
-    .run()
+  CargoFmt::default().run()
 }

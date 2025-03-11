@@ -39,29 +39,18 @@ fn remove_comments_and_collect(s: &str) -> Cow<'_, str> {
     .pipe(Cow::from)
 }
 
-impl Runner<'_> {
-  /// Parses raw command string into executable components
-  ///
-  /// Why TinyVec:
-  /// - Stack-allocated for small commands (≤16 elements)
-  /// - Fallback to heap for large commands automatically
-  ///
-  /// > size: `TinyVec<[Cow<'_, str>; 16]>` = 392
-  pub fn collect_raw(
-    raw: &str,
-    remove_comments: bool,
-  ) -> TinyVec<[Cow<'_, str>; 16]> {
-    raw
-      .trim_ascii() // Trim ASCII whitespace efficiently (rust 1.80+)
-      .pipe(|s| match remove_comments {
-        true => remove_comments_and_collect(s),
-        _ => s.into(), // Convert to Cow without cloning
-      })
-      .pipe_deref(shlex::Shlex::new) // Safe command line splitting
-      .map(Cow::from)
-      .collect()
+pub trait RunnableCommand<'a>: Sized
+where
+  Runner<'a>: From<Self>,
+{
+  fn run(self) -> io::Result<()> {
+    Runner::from(self).run()
   }
+}
 
+impl<'a> RunnableCommand<'a> for Runner<'a> {}
+
+impl Runner<'_> {
   /// Executes command with configured preprocessing
   ///
   /// ## Example
@@ -103,6 +92,30 @@ impl Runner<'_> {
     // Phase 3: OS command execution
     .iter()
     .pipe(run_os_cmd)
+  }
+}
+
+impl Runner<'_> {
+  /// Parses raw command string into executable components
+  ///
+  /// Why TinyVec:
+  /// - Stack-allocated for small commands (≤16 elements)
+  /// - Fallback to heap for large commands automatically
+  ///
+  /// > size: `TinyVec<[Cow<'_, str>; 16]>` = 392
+  pub fn collect_raw(
+    raw: &str,
+    remove_comments: bool,
+  ) -> TinyVec<[Cow<'_, str>; 16]> {
+    raw
+      .trim_ascii() // Trim ASCII whitespace efficiently (rust 1.80+)
+      .pipe(|s| match remove_comments {
+        true => remove_comments_and_collect(s),
+        _ => s.into(), // Convert to Cow without cloning
+      })
+      .pipe_deref(shlex::Shlex::new) // Safe command line splitting
+      .map(Cow::from)
+      .collect()
   }
 }
 

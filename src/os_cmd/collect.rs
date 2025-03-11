@@ -1,32 +1,17 @@
-use crate::os_cmd::{MiniStr, SmallString};
+use tap::Pipe;
 
-/// This function takes an iterator of items that can be converted into
-/// `SmallString` and collects them into a `Box<[SmallString]>`.
+use crate::os_cmd::MiniStr;
+
+/// `[&str; N]` => `Box<[MiniStr]>`
 ///
-/// ## Example
-///
-/// ```
-/// use tap::Pipe;
-/// use testutils::os_cmd::collect::collect_to_smallstr_slice;
-///
-/// let slice = ["cargo", "+nightly", "fmt"]
-///   .into_iter()
-///   .pipe(collect_to_smallstr_slice);
-///
-/// assert_eq!(slice.len(), 3);
-/// assert_eq!(slice[0], "cargo");
-/// assert_eq!(slice[1], "+nightly");
-/// assert_eq!(slice[2], "fmt");
-/// ```
-pub fn collect_to_smallstr_slice<I>(iter: I) -> Box<[SmallString]>
-where
-  I: Iterator,
-  I::Item: Into<SmallString>,
-{
-  iter.map(Into::into).collect()
+/// See also: [collect_to_ministr_slice()]
+pub fn collect_to_args<const N: usize>(slice: [&str; N]) -> Box<[MiniStr]> {
+  slice
+    .into_iter()
+    .pipe(collect_to_ministr_slice)
 }
 
-/// iter => Box<[MiniStr]>
+/// iter => `Box<[MiniStr]>`
 ///
 /// ## Example
 ///
@@ -54,9 +39,7 @@ mod tests {
   #[ignore]
   #[test]
   fn test_collect_owned_slice() {
-    let slice = ["cargo", "+nightly", "fmt"]
-      .into_iter()
-      .pipe(collect_to_smallstr_slice);
+    let slice = ["cargo", "+nightly", "fmt"].pipe(collect_to_args);
 
     assert_eq!(slice.len(), 3);
     assert_eq!(slice[0], "cargo");

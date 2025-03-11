@@ -1,5 +1,5 @@
 pub mod collect;
-/// Provides configurable command runners such as `CargoDoc` and `CargoBuild`.
+/// Provides configurable command runners such as `CargoDoc` and `CargoCmd`.
 pub mod presets;
 
 mod repr;
@@ -7,7 +7,7 @@ pub use compact_str::{CompactString as MiniStr, format_compact as fmt_compact};
 pub use repr::CommandRepr;
 
 mod runner;
-pub use runner::Runner;
+pub use runner::{RunnableCommand, Runner};
 
 use crate::tiny_container::TString;
 
