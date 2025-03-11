@@ -3,7 +3,9 @@ use crate::os_cmd::MiniStr;
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// cargo profile name: e.g., build, dev
 pub enum CargoProfile {
+  /// "release"
   Release,
+  /// "dev"
   Debug,
   Custom(MiniStr),
 }

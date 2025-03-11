@@ -1,6 +1,6 @@
 # ChangeLog
 
-## 0.0.4 (Upcoming)
+## 0.0.4
 
 - feat(CargoCmd.profile): MiniStr -> CargoProfile
 - add `CargoProfile`
