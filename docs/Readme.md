@@ -3,7 +3,6 @@
 A utility library providing various helper functions, macros, and tools for Rust development.
 
 [![testutils.crate](https://img.shields.io/crates/v/testutils?label=testutils)](https://crates.io/crates/testutils)
-
 [![Documentation](https://docs.rs/testutils/badge.svg)](https://docs.rs/testutils)
 
 [![Apache-2 licensed](https://img.shields.io/crates/l/testutils.svg)](../License)

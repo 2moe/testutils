@@ -10,6 +10,9 @@ use crate::os_cmd::{CommandRepr, MiniStr, RunnableCommand, Runner, fmt_compact};
 mod sub_cmd;
 pub use sub_cmd::SubCmd;
 
+mod cargo_profile;
+pub use cargo_profile::CargoProfile;
+
 pub mod flags;
 
 mod target_list;
@@ -75,7 +78,7 @@ pub struct CargoCmd {
   nightly: bool,
   cargo: MiniStr,
   sub_command: SubCmd,
-  profile: MiniStr,
+  profile: CargoProfile,
   pkg: MiniStr,
   target: RustcTarget,
   all_packages: bool,
@@ -109,7 +112,7 @@ impl Default for CargoCmd {
   ///     nightly: false,
   ///     cargo: "cargo",
   ///     sub_command: Build,
-  ///     profile: "release",
+  ///     profile: Release,
   ///     pkg: "",
   ///     target: default,
   ///     all_packages: false,
@@ -149,7 +152,7 @@ impl Default for CargoCmd {
       nightly: false,
       cargo: "cargo".into(),
       sub_command: Default::default(),
-      profile: "release".into(),
+      profile: Default::default(),
       pkg: "".into(),
       target: Default::default(),
       all_packages: false,
