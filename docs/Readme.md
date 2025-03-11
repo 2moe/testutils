@@ -244,6 +244,7 @@ CargoCmd {
     profile: "release",
     pkg: "",
     target: default,
+    all_packages: false,
     all_features: false,
     no_default_features: false,
     features: [],
@@ -274,7 +275,6 @@ CargoCmd {
     other_args: [],
 }
 ```
-
 
 ```rust
 let vec = CargoCmd::default()

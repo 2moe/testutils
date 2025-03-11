@@ -78,7 +78,7 @@ pub struct CargoCmd {
   profile: MiniStr,
   pkg: MiniStr,
   target: RustcTarget,
-  all_workspaces: bool,
+  all_packages: bool,
   all_features: bool,
   no_default_features: bool,
   features: Box<[MiniStr]>,
@@ -112,6 +112,7 @@ impl Default for CargoCmd {
   ///     profile: "release",
   ///     pkg: "",
   ///     target: default,
+  ///     all_packages: false,
   ///     all_features: false,
   ///     no_default_features: false,
   ///     features: [],
@@ -151,7 +152,7 @@ impl Default for CargoCmd {
       profile: "release".into(),
       pkg: "".into(),
       target: Default::default(),
-      all_workspaces: false,
+      all_packages: false,
       all_features: false,
       no_default_features: false,
       features: Default::default(),
@@ -195,7 +196,7 @@ impl CargoCmd {
       profile,
       pkg,
       target,
-      all_workspaces,
+      all_packages,
       all_features,
       no_default_features,
       features,
@@ -228,7 +229,7 @@ impl CargoCmd {
     // --package {pkg}
     .chain(try_into_long_arg("package", pkg))
     // --workspace
-    .chain(all_workspaces.then(|| "--workspace".into()))
+    .chain(all_packages.then(|| "--workspace".into()))
     // --target {target.as_ref()}
     .chain(try_into_long_arg("target", target))
     .chain(all_features.then(|| "--all-features".into()))

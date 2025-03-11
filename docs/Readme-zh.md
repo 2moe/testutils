@@ -140,7 +140,7 @@ CargoDoc {
 }
 ```
 
-我们可以用 `CargoDoc::default()` 来初始化一个包含默认配置的 CargoDoc 结构体，然后转为 `Runner`, 最后调用 `.run()` 来运行命令。
+我们可以用 `CargoDoc::default()` 来初始化一个包含默认配置的 CargoDoc 结构体，然后导入 `RunnableCommand` Trait, 最后调用 `.run()` 来运行命令。
 
 ```rust
 use std::io;
@@ -210,6 +210,7 @@ CargoCmd {
     profile: "release",
     pkg: "",
     target: default,
+    all_packages: false,
     all_features: false,
     no_default_features: false,
     features: [],

@@ -1,6 +1,6 @@
 [package]
 name = "testutils"
-version = "0.0.2"
+version = "0.0.3"
 rust-version = "1.85"
 edition = "2024"
 license = "Apache-2.0"

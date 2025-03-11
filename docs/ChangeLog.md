@@ -1,13 +1,15 @@
 # ChangeLog
 
-## 0.0.2
+## 0.0.3
 
-- feat(CargoCmd): add `all_workspaces` field
+- fix(CargoCmd field name): `all_workspaces` -> `all_packages`
 
 ```rust
-// all_workspaces: bool
-all_workspaces.then(|| "--workspace".into())
+// all_packages: bool
+all_packages.then(|| "--workspace".into())
 ```
+
+## 0.0.2 (Deprecated)
 
 - feat(macro): add `dbg!`
 - feat(trait): add RunnableCommand
