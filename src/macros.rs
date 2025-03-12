@@ -6,21 +6,22 @@ macro_rules! get_pkg_name {
   };
 }
 
-/// Similar to the `dbg!` macro, but inspects values by reference without moving
-/// them. This allows debugging values without transferring ownership, while
-/// showing the underlying value's type information (not reference types).
+/// Similar to the `std::dbg!` macro, but inspects values by reference without
+/// moving them. This allows debugging values without transferring ownership,
+/// while showing the underlying value's type information (not reference types).
 ///
 /// This macro uses [`log::debug!`] internally, so you must:
 /// 1. Configure a logger (e.g., `env_logger`) with debug level enabled
 /// 2. Initialize the logger before use
 ///
-/// ## Key Differences from `dbg!`
+/// ## Key Differences from `std::dbg!`
+///
 /// - Returns `()` instead of the original value
 /// - Requires explicit logger initialization
 ///
 /// ## Examples
 ///
-/// Basic usage with automatic type deduction
+/// Basic usage
 ///
 /// ```
 /// use testutils::dbg_ref;
@@ -51,6 +52,7 @@ macro_rules! get_pkg_name {
 /// ```
 ///
 /// ## Implementation Notes
+///
 /// 1. Uses `core::any::type_name_of_val` for type information
 /// 2. Formats output as: `{variable_name}: {type} = {debug_representation}`
 /// 3. Multiple arguments generate separate log entries
