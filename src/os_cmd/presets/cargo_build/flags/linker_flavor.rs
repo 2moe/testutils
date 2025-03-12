@@ -18,6 +18,23 @@ pub enum LinkerFlavor {
   Ignore,
 }
 
+impl From<&str> for LinkerFlavor {
+  fn from(value: &str) -> Self {
+    use LinkerFlavor::*;
+    match value {
+      "em" => EmscriptenEmcc,
+      "gcc" => GCC,
+      "ld" => LD,
+      "msvc" => MSVC,
+      "wasm-ld" => WasmLD,
+      "ld64.lld" => DarwinLLVMLLD,
+      "ld.lld" => GNUbinutilsLLVMLLD,
+      "lld-link" => MSLinkExeLLD,
+      _ => Ignore,
+    }
+  }
+}
+
 impl LinkerFlavor {
   /// Converts LinkerFlavor as `&str`
   pub const fn as_str(&self) -> &str {

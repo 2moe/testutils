@@ -22,13 +22,13 @@ impl From<&str> for SubCmd {
       "bench" => Bench,
       "check" => Check,
       "rustc" => Rustc,
-      v => Self::Custom(v.into()),
+      v => Custom(v.into()),
     }
   }
 }
 
 impl SubCmd {
-  const fn ignore_custom_as_str(&self) -> &str {
+  const fn as_static_str(&self) -> &str {
     use SubCmd::*;
 
     match self {
@@ -45,7 +45,7 @@ impl SubCmd {
   pub fn as_str(&self) -> &str {
     match self {
       Self::Custom(s) => s.as_ref(),
-      _ => self.ignore_custom_as_str(),
+      _ => self.as_static_str(),
     }
   }
 }

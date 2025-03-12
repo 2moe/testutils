@@ -14,6 +14,23 @@ pub enum RelocationModel {
   Ignore,
 }
 
+impl From<&str> for RelocationModel {
+  fn from(value: &str) -> Self {
+    use RelocationModel::*;
+    match value {
+      "static" => Static,
+      "pic" => Pic,
+      "pie" => Pie,
+      "dynamic-no-pic" => DynamicNoPic,
+      "ropi" => Ropi,
+      "rwpi" => Rwpi,
+      "ropi-rwpi" => RopiRwpi,
+      "default" => Default,
+      _ => Ignore,
+    }
+  }
+}
+
 impl RelocationModel {
   /// Converts RelocationModel as `&str`
   ///

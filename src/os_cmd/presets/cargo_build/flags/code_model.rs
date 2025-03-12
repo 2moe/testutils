@@ -19,6 +19,20 @@ pub enum CodeModel {
   Ignore,
 }
 
+impl From<&str> for CodeModel {
+  fn from(value: &str) -> Self {
+    use CodeModel::*;
+    match value {
+      "tiny" => Tiny,
+      "small" => Small,
+      "kernel" => Kernel,
+      "medium" => Medium,
+      "large" => Large,
+      _ => Ignore,
+    }
+  }
+}
+
 impl CodeModel {
   /// Converts CodeModel as `&str`
   pub const fn as_str(&self) -> &str {
