@@ -24,7 +24,7 @@
 
 `dbg_ref!` 会输出传入参数的类型以及值，主要用于调试。
 
-与 `std::dbg!` 不同的是，它内部使用了 `log::debug!` 来输出，而不是直接 (用`eprintln!`) 输出到 stderr。
+与 `std::dbg!` 不同的是：它通过 `log::debug!` 来输出，而不是直接 (用`eprintln!`) 输出到 stderr。
 
 ```rust
 use testutils::dbg_ref;
@@ -125,7 +125,7 @@ fn build_rsdoc() -> io::Result<()> {
 
 ### CargoDoc
 
-对比 cargo rustdoc 命令，我们不需要从 raw string 中构造 runner，我们可以直接使用现有的 CargoDoc 结构体。
+对于 cargo rustdoc 命令，我们不需要从 raw string 中构造 runner，我们可以直接使用现有的 CargoDoc 结构体。
 
 默认的 CargoDoc 是：
 

@@ -24,7 +24,7 @@
 
 `dbg_ref!` 會輸出傳入引數的型別以及值，主要用於除錯。
 
-與 `std::dbg!` 不同的是，它內部使用了 `log::debug!` 來輸出，而不是直接 (用`eprintln!`) 輸出到 stderr。
+與 `std::dbg!` 不同的是：它透過 `log::debug!` 來輸出，而不是直接 (用`eprintln!`) 輸出到 stderr。
 
 ```rust
 use testutils::dbg_ref;
@@ -125,7 +125,7 @@ fn build_rsdoc() -> io::Result<()> {
 
 ### CargoDoc
 
-對比 cargo rustdoc 命令，我們不需要從 raw string 中構造 runner，我們可以直接使用現有的 CargoDoc 結構體。
+對於 cargo rustdoc 命令，我們不需要從 raw string 中構造 runner，我們可以直接使用現有的 CargoDoc 結構體。
 
 預設的 CargoDoc 是：
 
