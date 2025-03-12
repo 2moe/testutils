@@ -141,6 +141,8 @@ macro_rules! generate_struct_arr {
 /// ## Example
 ///
 /// ```
+/// use testutils::new_once_lock;
+///
 /// fn static_a<'s>(n: u8) -> &'s u8 {
 ///   new_once_lock!(A: u8); // => static A: OnceLock<u8> = OnceLock::new();
 ///   A.get_or_init(|| n)
