@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 #[allow(non_camel_case_types)]
 /// rustc --print target-list
 pub enum RustcTarget {
