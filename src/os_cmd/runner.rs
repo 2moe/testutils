@@ -3,10 +3,10 @@ use std::{io, process::Command};
 
 use getset::{Getters, WithSetters};
 use tap::{Pipe, Tap};
+use tinyvec::TinyVec;
 
 use crate::{
   os_cmd::{CommandRepr, MiniStr},
-  tiny_container::TinyVec,
   traits::BoolExt,
 };
 

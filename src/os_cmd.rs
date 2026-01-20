@@ -9,11 +9,6 @@ pub use repr::CommandRepr;
 mod runner;
 pub use runner::{RunnableCommand, Runner};
 
-use crate::tiny_container::TString;
-
-/// on 64bit sys: const N = 28, size = 32 (0x20)
-pub type SmallString = TString<28>;
-
 #[cfg(test)]
 mod tests {
   use super::*;

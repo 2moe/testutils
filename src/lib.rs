@@ -1,5 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(__unstable_doc, feature(doc_auto_cfg, doc_notable_trait))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 /*!
 ## Features
 
@@ -14,14 +14,6 @@
   - `BoolExt` - Adds `.ok_or_else()` method for `bool` type
   - Re-exports `Pipe` and `Tap` traits from `tap` crate
 
-- **tiny_container**
-  Compact string (<=N: Inline(Stack), >N: Overflow to Heap):
-  - `TString<const N: usize>` type alias for `TinyString<[u8; N]>`
-  - `Formattable` trait
-    - Enables `format` support for `TString`
-  - `IntoBoxedStr` trait
-    - Adds `.into_boxed_str()` conversion
-
 - **os_cmd**
   Configurable command builders:
   - Preconfigured cargo command structs (e.g., `CargoDoc`, `CargoCmd`)
@@ -35,10 +27,6 @@ pub mod os_cmd;
 #[cfg(feature = "ext_traits")]
 /// Provides BoolExt(`.ok_or_else()`)
 pub mod traits;
-
-#[cfg(feature = "tiny_container")]
-/// TString & TinyVec
-pub mod tiny_container;
 
 mod macros;
 

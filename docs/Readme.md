@@ -22,14 +22,6 @@ A utility library providing various helper functions, macros, and tools for Rust
   - `BoolExt` - Adds `.ok_or_else()` method for `bool` type
   - Re-exports `Pipe` and `Tap` traits from `tap` crate
 
-- **tiny_container**
-  Compact string (<=N: Inline(Stack), >N: Overflow to Heap):
-  - `TString<const N: usize>` type alias for `TinyString<[u8; N]>`
-  - `Formattable` trait
-    - Enables `format` support for `TString`
-  - `IntoBoxedStr` trait
-    - Adds `.into_boxed_str()` conversion
-
 - **os_cmd**
   - Configurable command builders:
     - Preconfigured cargo command structs (e.g., `CargoDoc`, `CargoCmd`)

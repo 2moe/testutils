@@ -1,4 +1,4 @@
-use crate::tiny_container::TinyVec;
+use tinyvec::TinyVec;
 pub type TinyCfg<'a, const N: usize> = TinyVec<[&'a str; N]>;
 // pub type TinyArgs = TinyVec<[MiniStr; 2]>;
 // pub type TinyCowVec<'a, const N: usize> = TinyVec<[alloc::borrow::Cow<'a,

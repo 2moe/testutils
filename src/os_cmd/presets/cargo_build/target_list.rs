@@ -573,7 +573,7 @@ mod tests {
 
   use tap::{Pipe, Tap};
 
-  use crate::os_cmd::{SmallString, fmt_compact};
+  use crate::os_cmd::fmt_compact;
   // use tap::Pipe;
   // use super::*;
 
@@ -586,7 +586,7 @@ mod tests {
           '-' | '.' => '_',
           c => c,
         })
-        .collect::<SmallString>()
+        .collect::<String>()
     };
 
     let (variants, matches): (String, String) = list
