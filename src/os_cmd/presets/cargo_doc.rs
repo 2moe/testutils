@@ -1,12 +1,10 @@
-use getset::{Getters, WithSetters};
+use getset::{Getters, Setters, WithSetters};
 use tap::Pipe;
 
-use crate::os_cmd::{
-  CommandRepr, MiniStr, RunnableCommand, Runner, presets::StrVec,
-};
+use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::StrVec};
 
-#[derive(Debug, Clone, WithSetters, Getters)]
-#[getset(set_with = "pub", get_copy = "pub with_prefix")]
+#[derive(Debug, Clone, WithSetters, Setters, Getters)]
+#[getset(set_with = "pub", set = "pub", get = "pub with_prefix")]
 /// Configurable cargo rustdoc command.
 ///
 /// This struct allows you to configure and generate a `cargo rustdoc` command
@@ -54,7 +52,7 @@ pub struct CargoDoc<'a> {
   all_features: bool,
   open: bool,
   enable_private_items: bool,
-  extra_args: Option<Box<[MiniStr]>>,
+  extra_args: Box<[&'a str]>,
 }
 
 /// generate_arg!(pkg) => concat_tinycfg("pkg", pkg) => `["--package", pkg]`
@@ -84,9 +82,9 @@ fn concat_tinycfg<'a>(field_name: &str, value: &'a str) -> StrVec<'a, 2> {
 
 impl<'a> CargoDoc<'a> {
   /// This function processes according to the configuration of the CargoDoc
-  /// struct fields, collects the result into a TinyCfg<11>.
+  /// struct fields, collects the result into a StrVec<11>.
   #[allow(clippy::unnecessary_lazy_evaluations)]
-  pub fn into_slice(self) -> StrVec<'a, 11> {
+  pub fn into_tinyvec(self) -> StrVec<'a, 11> {
     let CargoDoc {
       pkg,
       custom_cfg,
@@ -107,17 +105,16 @@ impl<'a> CargoDoc<'a> {
       .chain(["--"])
       .chain(generate_arg!(custom_cfg))
       .chain(enable_private_items.then(|| "--document-private-items"))
+      .chain(extra_args)
       .collect::<StrVec<11>>()
   }
 }
 
 impl<'a> From<CargoDoc<'a>> for CommandRepr<'a> {
-  /// This function processes according to the configuration of the CargoDoc
-  /// struct fields, collects the result into a TinyCfg<11>, converts it into a
-  /// boxed_slice, and wraps it with `CommandRepr::Slice`.
+  /// CargoDoc => `CommandRepr::Slice`
   fn from(value: CargoDoc<'a>) -> Self {
     value
-      .into_slice()
+      .into_tinyvec()
       .into_boxed_slice()
       .into()
     // .pipe(CommandRepr::Slice)
@@ -142,6 +139,7 @@ impl Default for CargoDoc<'_> {
   ///     all_features: true,
   ///     open: true,
   ///     enable_private_items: true,
+  ///     extra_args: Default::default(),
   /// }
   /// ```
   fn default() -> Self {
@@ -152,7 +150,7 @@ impl Default for CargoDoc<'_> {
       all_features: true,
       open: true,
       enable_private_items: true,
-      extra_args: None,
+      extra_args: Default::default(),
     }
   }
 }
