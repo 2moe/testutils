@@ -45,31 +45,27 @@ pub trait RunnableCommand<'a>: Sized
 where
   Runner<'a>: From<Self>,
 {
+  /// Executes command with configured preprocessing
+  ///
+  /// ## Example
+  ///
+  /// ```ignore
+  /// use testutils::{get_pkg_name, os_cmd::presets::CargoDoc};
+  ///
+  /// CargoDoc::default()
+  ///   .with_pkg(get_pkg_name!())
+  ///   .run()
+  /// ```
   fn run(self) -> io::Result<()> {
-    Runner::from(self).run()
+    Runner::from(self).run_command()
   }
 }
 
 impl<'a> RunnableCommand<'a> for Runner<'a> {}
 
 impl Runner<'_> {
-  /// Executes command with configured preprocessing
-  ///
-  /// ## Example
-  ///
-  /// ```ignore
-  /// use tap::Pipe;
-  /// use testutils::{
-  ///   get_pkg_name,
-  ///   os_cmd::{Runner, presets::CargoDoc},
-  /// };
-  ///
-  /// CargoDoc::default()
-  ///   .with_pkg(get_pkg_name!())
-  ///   .pipe(Runner::from)
-  ///   .run()
-  /// ```
-  pub fn run(self) -> io::Result<()> {
+  /// see also: [RunnableCommand::run()]
+  pub fn run_command(self) -> io::Result<()> {
     use RunnerInspection::{LogDebug, Stderr};
     let Self { inspect_mode, .. } = self;
 
@@ -89,9 +85,10 @@ impl Runner<'_> {
 }
 
 impl<'a> Runner<'a> {
-  /// - Raw(&str) => [collect_raw](Self::collect_raw) => command vec
+  /// - Raw(&str) => [collect_raw](super::collect_raw) => command vec
   /// - Slice(Box<[&str]>) => `TinyVec<[Cow<&str>]>`
-  /// - OwnedSlice(Box<[CompactString]>) => `TinyVec<[Cow<String>]>`
+  /// - OwnedSlice(Box<[compact_str::CompactString]>) =>
+  ///   `TinyVec<[Cow<String>]>`
   pub fn into_tinyvec(self) -> TinyCmds<'a> {
     let Self {
       command,

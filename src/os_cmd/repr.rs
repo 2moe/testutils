@@ -2,9 +2,10 @@ use alloc::borrow::Cow;
 
 use tap::Pipe;
 
-use crate::os_cmd::{MiniStr, presets::CowStrVec};
-
+use crate::os_cmd::{MiniStr, RunnableCommand, presets::CowStrVec};
 pub(crate) type TinyCmds<'a> = CowStrVec<'a, 10>;
+
+impl<'a> RunnableCommand<'a> for CommandRepr<'a> {}
 
 /// Command Representation
 ///
@@ -51,9 +52,10 @@ impl<'a> From<&'a str> for CommandRepr<'a> {
 }
 
 impl<'a> CommandRepr<'a> {
-  /// - Raw(&str) => [collect_raw](Self::collect_raw) => command vec
+  /// - Raw(&str) => [collect_raw](collect_raw) => command vec
   /// - Slice(Box<[&str]>) => `TinyVec<[Cow<&str>]>`
-  /// - OwnedSlice(Box<[CompactString]>) => `TinyVec<[Cow<String>]>`
+  /// - OwnedSlice(Box<[compact_str::CompactString]>) =>
+  ///   `TinyVec<[Cow<String>]>`
   pub fn into_tinyvec(self, remove_comments: bool) -> TinyCmds<'a> {
     match self {
       Self::Raw(raw) => collect_raw(raw, remove_comments),
@@ -113,7 +115,7 @@ pub fn collect_raw(raw: &str, remove_comments: bool) -> TinyCmds<'_> {
 /// Why Cow:
 ///
 /// - This involves an external condition check. (Required by
-///   [collect_raw](CommandRepr::collect_raw))
+///   [collect_raw](collect_raw))
 ///
 ///   - When `remove_comments` is true, this function is executed.
 ///   - When it is false, it directly returns the original string (`&str`).
@@ -151,6 +153,7 @@ mod tests {
   }
 
   #[cfg(feature = "print_ext")]
+  #[ignore]
   #[test]
   fn test_collect_raw() {
     use tap::Tap;
@@ -169,5 +172,16 @@ mod tests {
     "#
     .pipe(into_vec)
     .tap(edbg);
+  }
+
+  #[cfg(feature = "print_ext")]
+  #[ignore]
+  #[test]
+  fn test_run_trait() {
+    let cmd = r#"printf "%s\n" Hello"#;
+    let repr: CommandRepr = cmd.into();
+    crate::dbg!(repr);
+
+    let _ = repr.run();
   }
 }

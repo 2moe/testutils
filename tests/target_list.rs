@@ -1,11 +1,8 @@
 // rustc --print target-list | awk '{gsub(/-|\./, "_", $0); printf("%s,",$0) }'
-use std::{io, process::Command};
+use std::io;
 
 use tap::Pipe;
-use testutils::{
-  get_pkg_name,
-  os_cmd::{self, RunnableCommand},
-};
+use testutils::os_cmd::{RunnableCommand, Runner};
 
 #[ignore]
 #[test]
@@ -14,7 +11,7 @@ fn build_and_open_rust_doc() -> io::Result<()> {
     rustc
     --print target-list
   "#
-  .pipe(os_cmd::Runner::from)
+  .pipe(Runner::from)
   .run()?;
 
   Ok(())

@@ -2,6 +2,7 @@ use getset::{Getters, Setters, WithSetters};
 use tap::Pipe;
 
 use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::StrVec};
+impl<'a> RunnableCommand<'a> for CargoDoc<'a> {}
 
 #[derive(Debug, Clone, WithSetters, Setters, Getters)]
 #[getset(set_with = "pub", set = "pub", get = "pub with_prefix")]
@@ -55,12 +56,30 @@ pub struct CargoDoc<'a> {
   extra_args: Box<[&'a str]>,
 }
 
-/// generate_arg!(pkg) => concat_tinycfg("pkg", pkg) => `["--package", pkg]`
-macro_rules! generate_arg {
+/// Converts an identifier into a `(name, value)` pair.
+///
+/// This macro expands to `(stringify!(ident), ident)`.
+///
+/// # Examples
+///
+/// ```
+/// use testutils::ident_value_pair;
+///
+/// let pkg = "cargo";
+/// let res = ident_value_pair!(pkg);
+/// assert_eq!(res, ("pkg", "cargo"));
+///
+/// let num = 3;
+/// let res2 = ident_value_pair!(num);
+/// assert_eq!(res2, ("num", 3));
+/// ```
+#[macro_export]
+macro_rules! ident_value_pair {
   ($value:ident) => {
-    concat_tinycfg(stringify!($value), $value)
+    (stringify!($value), $value)
   };
 }
+
 /// - pkg
 ///   - "" => `[]`
 ///   - value => `["--package", value]`
@@ -68,7 +87,9 @@ macro_rules! generate_arg {
 /// - custom_cfg
 ///   - "" => `[]`
 ///   - value => `["--cfg", value]`
-fn concat_tinycfg<'a>(field_name: &str, value: &'a str) -> StrVec<'a, 2> {
+fn concat_tinycfg<'a>(arg_tup: (&str, &'a str)) -> StrVec<'a, 2> {
+  let (field_name, value) = arg_tup;
+
   let get_arg = || match field_name {
     "pkg" => "--package",
     _ => "--cfg",
@@ -81,8 +102,7 @@ fn concat_tinycfg<'a>(field_name: &str, value: &'a str) -> StrVec<'a, 2> {
 }
 
 impl<'a> CargoDoc<'a> {
-  /// This function processes according to the configuration of the CargoDoc
-  /// struct fields, collects the result into a StrVec<11>.
+  /// `CargoDoc<'_>` => `TinyVec<[&str; 11]>`
   #[allow(clippy::unnecessary_lazy_evaluations)]
   pub fn into_tinyvec(self) -> StrVec<'a, 11> {
     let CargoDoc {
@@ -99,11 +119,11 @@ impl<'a> CargoDoc<'a> {
       .pipe(core::iter::once)
       .chain(nightly.then(|| "+nightly"))
       .chain(["rustdoc"])
-      .chain(generate_arg!(pkg))
+      .chain(ident_value_pair!(pkg).pipe(concat_tinycfg))
       .chain(all_features.then(|| "--all-features"))
       .chain(open.then(|| "--open"))
       .chain(["--"])
-      .chain(generate_arg!(custom_cfg))
+      .chain(ident_value_pair!(custom_cfg).pipe(concat_tinycfg))
       .chain(enable_private_items.then(|| "--document-private-items"))
       .chain(extra_args)
       .collect::<StrVec<11>>()
@@ -117,7 +137,6 @@ impl<'a> From<CargoDoc<'a>> for CommandRepr<'a> {
       .into_tinyvec()
       .into_boxed_slice()
       .into()
-    // .pipe(CommandRepr::Slice)
   }
 }
 
@@ -154,8 +173,6 @@ impl Default for CargoDoc<'_> {
     }
   }
 }
-
-impl<'a> RunnableCommand<'a> for CargoDoc<'a> {}
 
 #[cfg(test)]
 mod tests {

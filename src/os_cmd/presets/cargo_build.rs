@@ -23,6 +23,7 @@ pub use build_std::BuildStd;
 
 mod build_std_features;
 pub use build_std_features::BuildStdFeatures;
+impl RunnableCommand<'_> for CargoCmd {}
 
 #[derive(Debug, Clone, WithSetters, Getters)]
 #[getset(set_with = "pub", get = "pub with_prefix")]
@@ -80,7 +81,7 @@ pub struct CargoCmd {
   sub_command: SubCmd,
   profile: CargoProfile,
   pkg: MiniStr,
-  // todo: RustcTarget or Custom
+  // TODO: RustcTarget or Custom
   target: RustcTarget,
   all_packages: bool,
   all_features: bool,
@@ -90,8 +91,6 @@ pub struct CargoCmd {
   build_std_features: BuildStdFeatures,
   extra_args: Box<[MiniStr]>,
 }
-
-impl RunnableCommand<'_> for CargoCmd {}
 
 impl Default for CargoCmd {
   /// Default:
