@@ -7,7 +7,7 @@ pub use compact_str::{CompactString as MiniStr, format_compact as fmt_compact};
 pub use repr::{CommandRepr, collect_raw, remove_comments_and_collect};
 
 mod runner;
-pub use runner::{RunnableCommand, Runner, run_os_cmd as run};
+pub use runner::{RunnableCommand, Runner, RunnerInspection, run_os_cmd as run};
 
 #[cfg(test)]
 mod tests {

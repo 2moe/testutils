@@ -1,15 +1,3 @@
 [alias]
 ta = ["test", "--all-features", "--workspace"]
-open-doc = [
-    "test",
-    "--package",
-    "testutils",
-    "--test",
-    "doc",
-    "--all-features",
-    "--",
-    "build_and_open_rust_doc",
-    "--exact",
-    "--show-output",
-    "--ignored",
-]
+open-doc = "test --package testutils --test doc --all-features -- serve_doc --exact --nocapture --ignored"

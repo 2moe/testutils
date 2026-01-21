@@ -1,7 +1,7 @@
 use alloc::borrow::Cow;
 use std::{io, process::Command};
 
-use getset::{Getters, Setters, WithSetters};
+use getset::{CopyGetters, Getters, Setters, WithSetters};
 use tap::{Pipe, Tap};
 
 use crate::{
@@ -12,20 +12,33 @@ use crate::{
 /// Command runner with configurable preprocessing and execution strategies
 ///
 /// - command: `[cmd, args...]`
-/// - remove_comments: `remove //` (only for raw strings)
-/// - inspect(debug) command: {eprint_cmd, log_dbg_cmd}
-#[derive(Debug, Clone, WithSetters, Getters, Setters)]
+/// - remove_comments: `remove //` (only for raw string, i.e., self.command ==
+///   CommandRepr::Raw)
+/// - inspect_mode: Emit the command via eprintln! or log::debug!
+#[derive(Debug, Clone, WithSetters, Getters, Setters, CopyGetters)]
 #[getset(set = "pub", set_with = "pub", get = "pub with_prefix")]
 pub struct Runner<'a> {
   /// Command representation (raw string or pre-split slices)
   command: CommandRepr<'a>,
-  /// Flag to remove `//` comments from command strings
+  /// Whether to strip `//`-style line comments from raw command strings.
   remove_comments: bool,
 
-  /// Directly print command to stderr before execution
-  eprint_cmd: bool,
-  /// Log command via `log::debug!()`,
-  log_dbg_cmd: bool,
+  /// Controls how (and whether) the command is surfaced for
+  /// debugging/inspection.
+  inspect_mode: RunnerInspection,
+}
+
+#[derive(Debug, Clone, Default, Copy)]
+pub enum RunnerInspection {
+  /// Write the command to stderr immediately before execution.
+  #[default]
+  Stderr,
+
+  /// Emit the command via `log::debug!()` prior to execution.
+  LogDebug,
+
+  /// Do not emit the command.
+  None,
 }
 
 pub trait RunnableCommand<'a>: Sized
@@ -57,16 +70,16 @@ impl Runner<'_> {
   ///   .run()
   /// ```
   pub fn run(self) -> io::Result<()> {
-    let eprint_cmd = self.eprint_cmd;
-    let log_dbg_cmd = self.log_dbg_cmd;
+    use RunnerInspection::{LogDebug, Stderr};
+    let Self { inspect_mode, .. } = self;
 
     // Phase 1: Command collection
     self
       .into_tinyvec()
       // Phase 2: Command inspection
-      .tap(|v| match v {
-        _ if eprint_cmd => eprintln!("{v:?}"), // Stderr output
-        _ if log_dbg_cmd => log::debug!("{v:?}"), // Structured logging
+      .tap(|v| match inspect_mode {
+        Stderr => eprintln!("{v:?}"),
+        LogDebug => log::debug!("{v:?}"),
         _ => {}
       })
       // Phase 3: OS command execution
@@ -124,22 +137,14 @@ impl Default for Runner<'_> {
   /// Runner {
   ///     command: CommandRepr::Raw("cargo"),
   ///     remove_comments: true,
-  ///     eprint_cmd: true,
-  ///     log_dbg_cmd: false,
+  ///     inspect_mode: RunnerInspection::Stderr,
   /// }
   /// ```
-  ///
-  /// Why these defaults:
-  ///
-  /// - remove_comments: true => Safer execution by default
-  /// - eprint_cmd: true => Immediate visibility of executed command
-  /// - log_dbg_cmd: false => Avoid duplicate logging unless requested
   fn default() -> Self {
     Self {
       command: CommandRepr::default(),
       remove_comments: true,
-      eprint_cmd: true,
-      log_dbg_cmd: false,
+      inspect_mode: RunnerInspection::default(),
     }
   }
 }

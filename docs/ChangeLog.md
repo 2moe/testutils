@@ -9,6 +9,10 @@ Breaking changes:
 
 - CargoCmd:
   - other_args => extra_args
+- Runner:
+  - add field **inspect_mode**
+  - `eprint_cmd` => RunnerInspection::Stderr
+  - `log_dbg_cmd` => RunnerInspection::LogDebug
 - remove tiny_container
 - update traits::BoolExt
   (To avoid conflict with the standard library (rust-lang/rust#142748), the function name has been changed.)
