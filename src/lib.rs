@@ -6,10 +6,11 @@
 - **std**
   Enables standard library support. When enabled, the crate cannot be used in `no_std` environments.
 
-- **ext_traits**
-  Additional trait extensions:
-  - `BoolExt` - Adds `.then_ok_or_else()` method for `bool` type
-  - Re-exports `Pipe` and `Tap` traits from `tap` crate
+- **bool_ext**
+  - Adds `.then_ok_or_else(||{err})` & `.then_ok_or(err)` method for `bool` type
+
+- **print_ext**
+  - Provides some printing helpers.
 
 - **re_exports_tap**
   - `pub use tap`
