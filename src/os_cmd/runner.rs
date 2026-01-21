@@ -5,8 +5,8 @@ use getset::{Getters, Setters, WithSetters};
 use tap::{Pipe, Tap};
 
 use crate::{
+  bool_ext::BoolExt,
   os_cmd::{CommandRepr, MiniStr, repr::TinyCmds},
-  traits::BoolExt,
 };
 
 /// Command runner with configurable preprocessing and execution strategies
@@ -173,7 +173,8 @@ mod tests {
 
   #[ignore]
   #[test]
+  #[cfg(feature = "print_ext")]
   fn show_default_runner() {
-    Runner::default().pipe(|x| dbg!(x));
+    Runner::default().pipe(|x| crate::dbg!(x));
   }
 }

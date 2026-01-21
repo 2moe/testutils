@@ -1,4 +1,4 @@
-/// Extension trait for types that can be converted into a bool.
+//! Extension trait for types that can be converted into a bool.
 pub trait BoolExt {
   /// Converts the bool value into a `Result<(), E>`.
   ///

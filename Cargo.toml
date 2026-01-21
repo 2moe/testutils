@@ -15,13 +15,21 @@ Offers a range of utility functions, macros, and tools, such as `simple_benchmar
 exclude = ["/rust-toolchain.toml", "/misc/"]
 
 [features]
-default = ["std", "os_cmd", "traits", "re_exports_tap"]
+default = [ #
+    "std",
+    "os_cmd",
+    "bool_ext",
+    "print_ext",
+    "re_exports_tap",
+]
 # ------------
-traits = []
+bool_ext = []
+print_ext = []
 re_exports_tap = []
 std = ["compact_str?/std", "tinyvec?/std", "shlex?/std"]
 os_cmd = [ #
     "std",
+    "bool_ext",
     "dep:shlex",
     "dep:tinyvec",
     "dep:compact_str",

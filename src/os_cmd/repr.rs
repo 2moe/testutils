@@ -55,15 +55,13 @@ impl<'a> CommandRepr<'a> {
   /// - Slice(Box<[&str]>) => `TinyVec<[Cow<&str>]>`
   /// - OwnedSlice(Box<[CompactString]>) => `TinyVec<[Cow<String>]>`
   pub fn into_tinyvec(self, remove_comments: bool) -> TinyCmds<'a> {
-    use CommandRepr::{OwnedSlice, Raw, Slice};
-
     match self {
-      Raw(raw) => collect_raw(raw, remove_comments),
-      Slice(items) => items
+      Self::Raw(raw) => collect_raw(raw, remove_comments),
+      Self::Slice(items) => items
         .into_iter()
         .map(Cow::from)
         .collect(),
-      OwnedSlice(items) => items
+      Self::OwnedSlice(items) => items
         .into_iter()
         .map(|x| x.into_string())
         .map(Cow::from)
@@ -79,7 +77,7 @@ impl<'a> CommandRepr<'a> {
 /// - Fallback to heap for large commands automatically
 ///
 /// > size: in x64 Linux, `TinyVec<[Cow<'_, str>; 10]>`: 248
-pub fn collect_raw(raw: &str, remove_comments: bool) -> TinyCmds {
+pub fn collect_raw(raw: &str, remove_comments: bool) -> TinyCmds<'_> {
   raw
     .trim_ascii() // Trim ASCII whitespace efficiently (rust 1.80+)
     .pipe(|s| match remove_comments {
@@ -112,4 +110,25 @@ pub fn remove_comments_and_collect(s: &str) -> Cow<'_, str> {
     })
     .collect::<String>()
     .pipe(Cow::from)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_collect_raw() {
+    let into_vec = |s| collect_raw(s, true);
+
+    r#"
+    // This is a comment
+    printf "%s" "
+    Hello
+      // wonderful
+      world
+    "
+    "#
+    .pipe(into_vec);
+    // .pipe(puts);
+  }
 }

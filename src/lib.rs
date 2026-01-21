@@ -26,8 +26,11 @@ pub mod os_cmd;
 
 mod macros;
 
-#[cfg(feature = "traits")]
-pub mod traits;
+#[cfg(feature = "bool_ext")]
+pub mod bool_ext;
+
+#[cfg(feature = "print_ext")]
+pub mod print_ext;
 
 #[cfg(feature = "re_exports_tap")]
 pub use tap;
