@@ -4,6 +4,9 @@
 
 - CommandRepr:
   - add `.into_tinyvec()`
+- os_cmd:
+  - add `struct DecodedText`
+  - add `struct CommandSpawner`, `enum StdioMode`
 
 Breaking changes:
 

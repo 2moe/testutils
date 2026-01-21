@@ -3,11 +3,29 @@ pub mod collect;
 pub mod presets;
 
 mod repr;
+use alloc::borrow::Cow;
+use std::ffi::{OsStr, OsString};
+
 pub use compact_str::{CompactString as MiniStr, format_compact as fmt_compact};
 pub use repr::{CommandRepr, collect_raw, remove_comments_and_collect};
 
 mod runner;
-pub use runner::{RunnableCommand, Runner, RunnerInspection, run_os_cmd as run};
+pub use runner::{RunnableCommand, Runner, RunnerInspection};
+
+mod process;
+pub use process::{CommandSpawner, StdioMode, run_os_cmd as run};
+
+mod decoded;
+pub use decoded::DecodedText;
+
+pub fn cow_str_into_cow_osstr(s: Cow<'_, str>) -> Cow<'_, OsStr> {
+  use Cow::{Borrowed, Owned};
+
+  match s {
+    Borrowed(b) => OsStr::new(b).into(),
+    Owned(o) => OsString::from(o).into(),
+  }
+}
 
 #[cfg(test)]
 mod tests {

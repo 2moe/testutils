@@ -2,7 +2,7 @@
 use std::io;
 
 use tap::Pipe;
-use testutils::os_cmd::{RunnableCommand, Runner};
+use testutils::os_cmd::Runner;
 
 #[ignore]
 #[test]
@@ -12,7 +12,7 @@ fn build_and_open_rust_doc() -> io::Result<()> {
     --print target-list
   "#
   .pipe(Runner::from)
-  .run()?;
+  .into_tinyvec();
 
   Ok(())
 }

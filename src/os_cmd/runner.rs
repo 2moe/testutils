@@ -1,12 +1,10 @@
-use alloc::borrow::Cow;
-use std::{io, process::Command};
+use std::io;
 
 use getset::{CopyGetters, Getters, Setters, WithSetters};
 use tap::{Pipe, Tap};
 
-use crate::{
-  bool_ext::BoolExt,
-  os_cmd::{CommandRepr, MiniStr, repr::TinyCmds},
+use crate::os_cmd::{
+  CommandRepr, MiniStr, cow_str_into_cow_osstr, process::run_os_cmd, repr::TinyCmds,
 };
 
 /// Command runner with configurable preprocessing and execution strategies
@@ -79,7 +77,8 @@ impl Runner<'_> {
         _ => {}
       })
       // Phase 3: OS command execution
-      .iter()
+      .into_iter()
+      .map(cow_str_into_cow_osstr)
       .pipe(run_os_cmd)
   }
 }
@@ -98,23 +97,6 @@ impl<'a> Runner<'a> {
 
     command.into_tinyvec(remove_comments)
   }
-}
-/// Core command execution logic
-pub fn run_os_cmd(mut iter: core::slice::Iter<Cow<str>>) -> io::Result<()> {
-  // Error helpers with lazy evaluation
-  let err = |msg| io::Error::other(msg);
-  let invalid_cmd = || "Invalid command".pipe(err);
-  let failed_to_run = || "Failed to run OS command".pipe(err);
-
-  iter
-    .next()
-    .map(AsRef::as_ref) // Dereference Cow transparently
-    .ok_or_else(invalid_cmd)? // Convert Option to Result
-    .pipe(Command::new) // Main command creation
-    .args(iter.map(AsRef::as_ref)) // Remainder as arguments
-    .status()? // Execute and get status
-    .success() // Convert status to bool
-    .then_ok_or_else(failed_to_run) // Convert bool to Result
 }
 
 /// Conversion trait implementation
