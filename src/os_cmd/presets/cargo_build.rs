@@ -88,7 +88,7 @@ pub struct CargoCmd {
   features: Box<[MiniStr]>,
   build_std: BuildStd,
   build_std_features: BuildStdFeatures,
-  other_args: Box<[MiniStr]>,
+  extra_args: Box<[MiniStr]>,
 }
 
 impl RunnableCommand<'_> for CargoCmd {}
@@ -144,7 +144,7 @@ impl Default for CargoCmd {
   ///         std_detect_env_override: false,
   ///         windows_raw_dylib: false,
   ///     },
-  ///     other_args: [],
+  ///     extra_args: [],
   /// }
   /// ```
   fn default() -> Self {
@@ -162,7 +162,7 @@ impl Default for CargoCmd {
       features: Default::default(),
       build_std: Default::default(),
       build_std_features: Default::default(),
-      other_args: Default::default(),
+      extra_args: Default::default(),
     }
   }
 }
@@ -206,7 +206,7 @@ impl CargoCmd {
       features,
       build_std,
       build_std_features,
-      other_args,
+      extra_args,
     } = self;
 
     let rust_flags_value = rust_flags
@@ -246,7 +246,7 @@ impl CargoCmd {
     // --build-std {build_std.to_args()}
     .chain(build_std.to_args())
     .chain(build_std_features.to_args())
-    .chain(other_args)
+    .chain(extra_args)
     .collect()
   }
 }

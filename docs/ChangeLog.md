@@ -7,6 +7,8 @@
 
 Breaking changes:
 
+- CargoCmd:
+  - other_args => extra_args
 - remove tiny_container
 - update traits::BoolExt
   (To avoid conflict with the standard library (rust-lang/rust#142748), the function name has been changed.)

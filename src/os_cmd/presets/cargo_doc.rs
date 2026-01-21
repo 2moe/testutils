@@ -54,7 +54,7 @@ pub struct CargoDoc<'a> {
   all_features: bool,
   open: bool,
   enable_private_items: bool,
-  other_args: Option<Box<[MiniStr]>>,
+  extra_args: Option<Box<[MiniStr]>>,
 }
 
 /// generate_arg!(pkg) => concat_tinycfg("pkg", pkg) => `["--package", pkg]`
@@ -94,7 +94,7 @@ impl<'a> CargoDoc<'a> {
       all_features,
       open,
       enable_private_items,
-      other_args,
+      extra_args,
     } = self;
 
     "cargo"
@@ -152,7 +152,7 @@ impl Default for CargoDoc<'_> {
       all_features: true,
       open: true,
       enable_private_items: true,
-      other_args: None,
+      extra_args: None,
     }
   }
 }

@@ -1,3 +1,6 @@
+//! ```ignore, sh
+//! cargo open-doc
+//! ```
 use std::io;
 
 use testutils::{
@@ -10,5 +13,6 @@ use testutils::{
 fn build_and_open_rust_doc() -> io::Result<()> {
   CargoDoc::default()
     .with_pkg(get_pkg_name!())
+    .with_open(false)
     .run()
 }

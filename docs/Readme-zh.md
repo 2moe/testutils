@@ -232,7 +232,7 @@ CargoCmd {
         std_detect_env_override: false,
         windows_raw_dylib: false,
     },
-    other_args: [],
+    extra_args: [],
 }
 ```
 
