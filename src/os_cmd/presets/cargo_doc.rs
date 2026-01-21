@@ -28,9 +28,10 @@ use crate::os_cmd::{
 /// ## Example
 ///
 /// ```
-/// use testutils::os_cmd::CommandRepr;
-/// use testutils::os_cmd::presets::CargoDoc;
-/// use testutils::get_pkg_name;
+/// use testutils::{
+///   get_pkg_name,
+///   os_cmd::{CommandRepr, presets::CargoDoc},
+/// };
 ///
 /// let cmd = CargoDoc::default()
 ///   .with_pkg(get_pkg_name!())

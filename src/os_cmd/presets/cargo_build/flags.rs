@@ -108,9 +108,10 @@ impl RustFlags {
   ///
   /// ```
   /// use tap::Pipe;
-  /// use testutils::os_cmd::collect::collect_to_ministr_slice;
-  /// use testutils::os_cmd::presets::cargo_build::flags::LinkerFlavor;
-  /// use testutils::os_cmd::presets::cargo_build::flags::RustFlags;
+  /// use testutils::os_cmd::{
+  ///   collect::collect_to_ministr_slice,
+  ///   presets::cargo_build::flags::{LinkerFlavor, RustFlags},
+  /// };
   ///
   /// let flags = RustFlags::default()
   ///   .with_crt_static(false.into())

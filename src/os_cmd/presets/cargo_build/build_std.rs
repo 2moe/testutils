@@ -36,44 +36,43 @@ use crate::{
 /// ## Example
 ///
 /// ```
-/// use testutils::os_cmd::presets::cargo_build::BuildStd;
-/// use testutils::os_cmd::presets::cargo_build::ArgConverter;
+/// use testutils::os_cmd::presets::cargo_build::{ArgConverter, BuildStd};
 ///
-///   let build_std_with_core_and_alloc = BuildStd::default()
-///     .with_std(false)
-///     .with_core(true)
-///     .with_alloc(true)
-///     .with_build_default(true);
+/// let build_std_with_core_and_alloc = BuildStd::default()
+///   .with_std(false)
+///   .with_core(true)
+///   .with_alloc(true)
+///   .with_build_default(true);
 ///
-///   assert_eq!(
-///     build_std_with_core_and_alloc
-///       .to_args()
-///       .next(),
-///     Some("-Z".into())
-///   );
+/// assert_eq!(
+///   build_std_with_core_and_alloc
+///     .to_args()
+///     .next(),
+///   Some("-Z".into())
+/// );
 ///
-///   assert_eq!(
-///     build_std_with_core_and_alloc
-///       .to_args()
-///       .last(),
-///     Some("build-std=core,alloc".into())
-///   );
+/// assert_eq!(
+///   build_std_with_core_and_alloc
+///     .to_args()
+///     .last(),
+///   Some("build-std=core,alloc".into())
+/// );
 ///
-///   let build_std_with_default_only = BuildStd::default().with_build_default(true);
-///   assert_eq!(
-///     build_std_with_default_only
-///       .to_args()
-///       .last(),
-///     Some("build-std".into())
-///   );
+/// let build_std_with_default_only = BuildStd::default().with_build_default(true);
+/// assert_eq!(
+///   build_std_with_default_only
+///     .to_args()
+///     .last(),
+///   Some("build-std".into())
+/// );
 ///
-///   let build_std_none_enabled = BuildStd::default();
-///   assert_eq!(
-///     build_std_none_enabled
-///       .to_args()
-///       .next(),
-///     None
-///   );
+/// let build_std_none_enabled = BuildStd::default();
+/// assert_eq!(
+///   build_std_none_enabled
+///     .to_args()
+///     .next(),
+///   None
+/// );
 /// ```
 pub struct BuildStd {
   build_default: bool,

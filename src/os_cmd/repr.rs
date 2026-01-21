@@ -77,6 +77,25 @@ impl<'a> CommandRepr<'a> {
 /// - Fallback to heap for large commands automatically
 ///
 /// > size: in x64 Linux, `TinyVec<[Cow<'_, str>; 10]>`: 248
+///
+///
+/// ## Example
+///
+/// ```
+/// # #[cfg(all(feature = "print_ext", feature = "re_exports_tap"))]
+/// # {
+/// use crate::{os_cmd::collect_raw, tap::Pipe};
+/// let into_vec = |s| collect_raw(s, true);
+/// let vec = r#"
+///     // output "world" string
+///     printf
+///     "%s"  world
+///     "#
+/// .pipe(into_vec);
+///
+/// assert_eq!(vec.as_ref(), &["printf", "%s", "world"]);
+/// # }
+/// ```
 pub fn collect_raw(raw: &str, remove_comments: bool) -> TinyCmds<'_> {
   raw
     .trim_ascii() // Trim ASCII whitespace efficiently (rust 1.80+)
@@ -116,8 +135,28 @@ pub fn remove_comments_and_collect(s: &str) -> Cow<'_, str> {
 mod tests {
   use super::*;
 
+  #[cfg(all(feature = "print_ext", feature = "re_exports_tap"))]
+  #[test]
+  fn doc_collect_raw() {
+    use crate::{os_cmd::collect_raw, tap::Pipe};
+    let into_vec = |s| collect_raw(s, true);
+    let vec = r#"
+    // This is a comment
+    printf
+    "%s"  world
+    "#
+    .pipe(into_vec);
+
+    assert_eq!(vec.as_ref(), &["printf", "%s", "world"]);
+  }
+
+  #[cfg(feature = "print_ext")]
   #[test]
   fn test_collect_raw() {
+    use tap::Tap;
+
+    use crate::print_ext::normal::edbg;
+
     let into_vec = |s| collect_raw(s, true);
 
     r#"
@@ -128,7 +167,7 @@ mod tests {
       world
     "
     "#
-    .pipe(into_vec);
-    // .pipe(puts);
+    .pipe(into_vec)
+    .tap(edbg);
   }
 }

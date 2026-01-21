@@ -16,8 +16,7 @@ use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::StrVec};
 /// ## Example
 ///
 /// ```
-/// use testutils::os_cmd::presets::CargoFmt;
-/// use testutils::os_cmd::CommandRepr;
+/// use testutils::os_cmd::{CommandRepr, presets::CargoFmt};
 ///
 /// let cmd = CargoFmt::default()
 ///   .with_nightly(false) // default is true

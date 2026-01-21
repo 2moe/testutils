@@ -17,8 +17,7 @@ use crate::{
 /// ## Example
 ///
 /// ```
-/// use testutils::os_cmd::presets::cargo_build::BuildStdFeatures;
-/// use testutils::os_cmd::presets::cargo_build::ArgConverter;
+/// use testutils::os_cmd::presets::cargo_build::{ArgConverter, BuildStdFeatures};
 ///
 /// let feats = BuildStdFeatures::default()
 ///   .with_panic_unwind(true)
