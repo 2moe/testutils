@@ -4,7 +4,7 @@ use crate::{
   generate_struct_arr,
   os_cmd::{
     MiniStr, fmt_compact,
-    presets::{TinyCfg, cargo_build::ArgConverter},
+    presets::{StrVec, cargo_build::ArgConverter},
   },
 };
 
@@ -138,7 +138,7 @@ impl ArgConverter for BuildStd {
     match components
       .into_iter()
       .filter_map(|(name, enabled)| enabled.then_some(name))
-      .collect::<TinyCfg<8>>()
+      .collect::<StrVec<8>>()
     {
       // If there are enabled fields, format them into a build string
       v if !v.is_empty() => [

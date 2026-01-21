@@ -5,7 +5,7 @@ use crate::{
   generate_struct_arr,
   os_cmd::{
     MiniStr,
-    presets::{TinyCfg, cargo_build::ArgConverter},
+    presets::{StrVec, cargo_build::ArgConverter},
   },
 };
 
@@ -103,7 +103,7 @@ impl ArgConverter for BuildStdFeatures {
     match components
       .into_iter()
       .filter_map(|(name, enabled)| enabled.then_some(name))
-      .collect::<TinyCfg<12>>()
+      .collect::<StrVec<12>>()
     {
       // Format enabled features into build-std-features parameter
       v if !v.is_empty() => [

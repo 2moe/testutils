@@ -1,5 +1,3 @@
-pub use tap::{Pipe, Tap};
-
 /// Extension trait for types that can be converted into a bool.
 pub trait BoolExt {
   /// Converts the bool value into a `Result<(), E>`.
@@ -15,11 +13,11 @@ pub trait BoolExt {
   /// use testutils::traits::BoolExt;
   ///
   /// let value = true;
-  /// let res: Result<(), &str> = value.ok_or_else(|| "error");
+  /// let res: Result<(), &str> = value.then_ok_or_else(|| "error");
   /// assert_eq!(res, Ok(()));
   ///
   /// let value = false;
-  /// assert_eq!(value.ok_or_else(|| "error"), Err("error"));
+  /// assert_eq!(value.then_ok_or_else(|| "error"), Err("error"));
   /// ```
   ///
   /// ## A more complex example
@@ -35,13 +33,20 @@ pub trait BoolExt {
   /// get_pkg_name!()
   ///  .pipe(build_rsdoc)? // ExitStatus
   ///  .success() // bool
-  ///  .ok_or_else(err) // io::Result<()>
+  ///  .then_ok_or_else(err) // io::Result<()>
   /// ```
-  fn ok_or_else<E>(self, err: impl FnOnce() -> E) -> Result<(), E>
+  fn then_ok_or_else<E>(self, err_fn: impl FnOnce() -> E) -> Result<(), E>
   where
     Self: Into<bool>,
   {
-    if self.into() { Ok(()) } else { Err(err()) }
+    if self.into() { Ok(()) } else { Err(err_fn()) }
+  }
+
+  fn then_ok_or<E>(self, err: E) -> Result<(), E>
+  where
+    Self: Into<bool>,
+  {
+    if self.into() { Ok(()) } else { Err(err) }
   }
 }
 
@@ -65,11 +70,11 @@ mod tests {
   #[test]
   fn test_bool_ok_or_else() {
     let value = true;
-    let res: Result<(), &str> = value.ok_or_else(|| "error");
+    let res: Result<(), &str> = value.then_ok_or_else(|| "error");
     assert_eq!(res, Ok(()));
 
     let value = false;
-    assert_eq!(value.ok_or_else(|| "error"), Err("error"));
+    assert_eq!(value.then_ok_or_else(|| "error"), Err("error"));
   }
 
   #[cfg(feature = "std")]

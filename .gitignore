@@ -46,3 +46,4 @@ flamegraph.svg
 !/rust-toolchain.toml
 !/tests
 !/examples
+# !/misc

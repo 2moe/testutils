@@ -1,8 +1,7 @@
 use tinyvec::TinyVec;
-pub type TinyCfg<'a, const N: usize> = TinyVec<[&'a str; N]>;
-// pub type TinyArgs = TinyVec<[MiniStr; 2]>;
-// pub type TinyCowVec<'a, const N: usize> = TinyVec<[alloc::borrow::Cow<'a,
-// str>; N]>;
+pub type StrVec<'a, const N: usize> = TinyVec<[&'a str; N]>;
+pub type CowStrVec<'a, const N: usize> = TinyVec<[alloc::borrow::Cow<'a, str>; N]>;
+pub type MiniStrVec<const N: usize> = TinyVec<[crate::os_cmd::MiniStr; N]>;
 
 pub mod cargo_build;
 mod cargo_doc;

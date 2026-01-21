@@ -1,9 +1,11 @@
-use getset::{CopyGetters, WithSetters};
+use getset::{Getters, WithSetters};
 use tap::Pipe;
 
-use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::TinyCfg};
+use crate::os_cmd::{
+  CommandRepr, MiniStr, RunnableCommand, Runner, presets::StrVec,
+};
 
-#[derive(Debug, Clone, WithSetters, CopyGetters)]
+#[derive(Debug, Clone, WithSetters, Getters)]
 #[getset(set_with = "pub", get_copy = "pub with_prefix")]
 /// Configurable cargo rustdoc command.
 ///
@@ -18,7 +20,7 @@ use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::TinyCfg};
 ///   "--package", pkg, // Automatically disables `--package` when pkg is an empty string.
 ///   "--all-features", "--open",
 ///   "--",
-///   "--cfg", "__unstable_doc", // The default custom_cfg is "__unstable_doc". When it is empty, `--cfg` is automatically disabled.
+///   "--cfg", "docsrs", // The default custom_cfg is "docsrs". When it is empty, `--cfg` is automatically disabled.
 ///   "--document-private-items",
 /// ]
 /// ```
@@ -37,7 +39,7 @@ use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::TinyCfg};
 ///   .with_enable_private_items(false) // default is true
 /// ;
 /// // dbg!(&cmd);
-/// assert_eq!(cmd.get_custom_cfg(), "__unstable_doc");
+/// assert_eq!(cmd.get_custom_cfg(), "docsrs");
 /// assert!(cmd.get_nightly()); // true
 /// assert!(!cmd.get_open()); // false
 /// assert!(!cmd.get_enable_private_items()); // false
@@ -51,6 +53,7 @@ pub struct CargoDoc<'a> {
   all_features: bool,
   open: bool,
   enable_private_items: bool,
+  other_args: Option<Box<[MiniStr]>>,
 }
 
 /// generate_arg!(pkg) => concat_tinycfg("pkg", pkg) => `["--package", pkg]`
@@ -66,14 +69,14 @@ macro_rules! generate_arg {
 /// - custom_cfg
 ///   - "" => `[]`
 ///   - value => `["--cfg", value]`
-fn concat_tinycfg<'a>(field_name: &str, value: &'a str) -> TinyCfg<'a, 2> {
+fn concat_tinycfg<'a>(field_name: &str, value: &'a str) -> StrVec<'a, 2> {
   let get_arg = || match field_name {
     "pkg" => "--package",
     _ => "--cfg",
   };
 
   match value {
-    "" => TinyCfg::new(),
+    "" => StrVec::new(),
     v => [get_arg(), v].into(),
   }
 }
@@ -82,7 +85,7 @@ impl<'a> CargoDoc<'a> {
   /// This function processes according to the configuration of the CargoDoc
   /// struct fields, collects the result into a TinyCfg<11>.
   #[allow(clippy::unnecessary_lazy_evaluations)]
-  pub fn into_slice(self) -> TinyCfg<'a, 11> {
+  pub fn into_slice(self) -> StrVec<'a, 11> {
     let CargoDoc {
       pkg,
       custom_cfg,
@@ -90,6 +93,7 @@ impl<'a> CargoDoc<'a> {
       all_features,
       open,
       enable_private_items,
+      other_args,
     } = self;
 
     "cargo"
@@ -102,7 +106,7 @@ impl<'a> CargoDoc<'a> {
       .chain(["--"])
       .chain(generate_arg!(custom_cfg))
       .chain(enable_private_items.then(|| "--document-private-items"))
-      .collect::<TinyCfg<11>>()
+      .collect::<StrVec<11>>()
   }
 }
 
@@ -132,7 +136,7 @@ impl Default for CargoDoc<'_> {
   /// ```ignore
   /// CargoDoc {
   ///     pkg: "",
-  ///     custom_cfg: "__unstable_doc",
+  ///     custom_cfg: "docsrs",
   ///     nightly: true,
   ///     all_features: true,
   ///     open: true,
@@ -143,10 +147,11 @@ impl Default for CargoDoc<'_> {
     Self {
       nightly: true,
       pkg: "",
-      custom_cfg: "__unstable_doc",
+      custom_cfg: "docsrs",
       all_features: true,
       open: true,
       enable_private_items: true,
+      other_args: None,
     }
   }
 }
@@ -164,7 +169,7 @@ mod tests {
     let cmd = CargoDoc::default().with_pkg(get_pkg_name!());
     // dbg!(&cmd);
     assert_eq!(cmd.pkg, "testutils");
-    assert_eq!(cmd.custom_cfg, "__unstable_doc");
+    assert_eq!(cmd.custom_cfg, "docsrs");
     assert!(cmd.nightly);
     assert!(cmd.open);
     assert!(cmd.enable_private_items);

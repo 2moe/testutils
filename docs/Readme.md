@@ -2,24 +2,29 @@
 
 A utility library providing various helper functions, macros, and tools for Rust development.
 
-[![testutils.crate](https://img.shields.io/crates/v/testutils?label=testutils)](https://crates.io/crates/testutils)
+[![testutils.crate](https://img.shields.io/crates/v/testutils?logo=rust&logoColor=lightsalmon&label=testutils%28lib%29)](https://crates.io/crates/testutils)
 [![Documentation](https://docs.rs/testutils/badge.svg)](https://docs.rs/testutils)
 
-[![Apache-2 licensed](https://img.shields.io/crates/l/testutils.svg)](../License)
+[![Apache-2 licensed](https://img.shields.io/crates/l/testutils.svg?logo=apache)](../License)
 
-[中文](./Readme-zh.md)
+---
+
+| Language/語言                   | ID         |
+| ------------------------------- | ---------- |
+| English                         | en-Latn-US |
+| [简体中文](./Readme-zh.md)      | zh-Hans-CN |
+| [繁體中文](./Readme-zh-Hant.md) | zh-Hant-TW |
+
+---
 
 ## Features
-
-- **all**
-  All available features enabled
 
 - **std**
   Enables standard library support. When enabled, the crate cannot be used in `no_std` environments.
 
 - **ext_traits**
   Additional trait extensions:
-  - `BoolExt` - Adds `.ok_or_else()` method for `bool` type
+  - `BoolExt` - Adds `.then_ok_or_else()` method for `bool` type
   - Re-exports `Pipe` and `Tap` traits from `tap` crate
 
 - **os_cmd**
@@ -127,8 +132,8 @@ fn build_rsdoc() -> io::Result<()> {
       --
 
     // Requires cfg matching attributes
-    // Assume you define `#![cfg_attr(__unstable_doc, feature(doc_auto_cfg, doc_notable_trait))]` in `lib.rs`, then `cfg` is `__unstable_doc`.
-      --cfg  __unstable_doc
+    // Assume you define `#![cfg_attr(docsrs, feature(doc_auto_cfg, doc_notable_trait))]` in `lib.rs`, then `cfg` is `docsrs`.
+      --cfg  docsrs
 
   // Include non-real-public (e.g., pub(crate) ) items in the generated documentation.
       --document-private-items
@@ -150,7 +155,7 @@ Preconfigured command builder with sensible defaults:
 ```rust
 CargoDoc {
     pkg: "",
-    custom_cfg: "__unstable_doc",
+    custom_cfg: "docsrs",
     nightly: true,
     all_features: true,
     open: true,

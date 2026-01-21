@@ -2,8 +2,6 @@
 
 ## Features
 
-- all
-  - 所有功能
 - std
   - 啟用後，無法在 no_std 環境中執行。
 - ext_traits
@@ -105,8 +103,8 @@ fn build_rsdoc() -> io::Result<()> {
 
       --
 
-    // 假設你在 lib.rs 中定義了 `#![cfg_attr(__unstable_doc, feature(doc_auto_cfg, doc_notable_trait))]`，那麼 `cfg` 就是 `__unstable_doc`
-      --cfg  __unstable_doc
+    // 假設你在 lib.rs 中定義了 `#![cfg_attr(docsrs, feature(doc_auto_cfg, doc_notable_trait))]`，那麼 `cfg` 就是 `docsrs`
+      --cfg  docsrs
 
     // 包含非“真正公開” (如 pub(crate) ) items in the generated documentation.
       --document-private-items
@@ -128,7 +126,7 @@ fn build_rsdoc() -> io::Result<()> {
 ```rust
 CargoDoc {
     pkg: "",
-    custom_cfg: "__unstable_doc",
+    custom_cfg: "docsrs",
     nightly: true,
     all_features: true,
     open: true,

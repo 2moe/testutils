@@ -1,6 +1,22 @@
 # ChangeLog
 
-## 0.0.5 (upcoming)
+## 0.0.6 (2026-01-21)
+
+- CommandRepr:
+  - add `.into_tinyvec()`
+
+Breaking changes:
+
+- remove tiny_container
+- update traits::BoolExt
+  (To avoid conflict with the standard library (rust-lang/rust#142748), the function name has been changed.)
+  - `.ok_or_else` => `.then_ok_or_else`
+  - add `.ok_or`
+- update CargoDoc
+  - custom_cfg:
+    - **"__unstable_doc"** => **"docsrs"**
+
+## 0.0.5
 
 - feat: add impl `<&str>` for SubCmd
 

@@ -1,7 +1,7 @@
 use getset::{CopyGetters, WithSetters};
 use tap::Pipe;
 
-use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::TinyCfg};
+use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::StrVec};
 
 #[derive(Debug, Clone, WithSetters, CopyGetters)]
 #[getset(set_with = "pub", get_copy = "pub with_prefix")]
@@ -53,7 +53,7 @@ impl From<CargoFmt> for CommandRepr<'_> {
           .then(|| "+nightly"),
       )
       .chain(["fmt"])
-      .collect::<TinyCfg<3>>()
+      .collect::<StrVec<3>>()
       .into_boxed_slice()
       .pipe(CommandRepr::Slice)
   }

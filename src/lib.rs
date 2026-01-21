@@ -3,16 +3,16 @@
 /*!
 ## Features
 
-- **all**
-  All available features enabled
-
 - **std**
   Enables standard library support. When enabled, the crate cannot be used in `no_std` environments.
 
 - **ext_traits**
   Additional trait extensions:
-  - `BoolExt` - Adds `.ok_or_else()` method for `bool` type
+  - `BoolExt` - Adds `.then_ok_or_else()` method for `bool` type
   - Re-exports `Pipe` and `Tap` traits from `tap` crate
+
+- **re_exports_tap**
+  - `pub use tap`
 
 - **os_cmd**
   Configurable command builders:
@@ -24,11 +24,13 @@ extern crate alloc;
 #[cfg(feature = "os_cmd")]
 pub mod os_cmd;
 
-#[cfg(feature = "ext_traits")]
-/// Provides BoolExt(`.ok_or_else()`)
+mod macros;
+
+#[cfg(feature = "traits")]
 pub mod traits;
 
-mod macros;
+#[cfg(feature = "re_exports_tap")]
+pub use tap;
 
 /// Runs the given function and prints the elapsed time.
 /// It supports stable Rust.
@@ -46,6 +48,7 @@ mod macros;
 pub fn simple_benchmark<U, F: FnOnce() -> U>(f: F) {
   let start = std::time::Instant::now();
   f();
+  let elapsed = start.elapsed();
 
-  eprintln!("Time taken: {:?}", start.elapsed());
+  eprintln!("Time taken: {elapsed:?}")
 }

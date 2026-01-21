@@ -1,8 +1,9 @@
 use crate::os_cmd::MiniStr;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 /// cargo sub command: e.g., build, run
 pub enum SubCmd {
+  #[default]
   Build,
   Run,
   Test,
@@ -52,10 +53,5 @@ impl SubCmd {
 impl AsRef<str> for SubCmd {
   fn as_ref(&self) -> &str {
     self.as_str()
-  }
-}
-impl Default for SubCmd {
-  fn default() -> Self {
-    Self::Build
   }
 }

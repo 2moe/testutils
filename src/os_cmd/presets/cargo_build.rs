@@ -80,6 +80,7 @@ pub struct CargoCmd {
   sub_command: SubCmd,
   profile: CargoProfile,
   pkg: MiniStr,
+  // todo: RustcTarget or Custom
   target: RustcTarget,
   all_packages: bool,
   all_features: bool,
@@ -271,7 +272,6 @@ mod tests {
   use tap::Pipe;
 
   // use super::*;
-  use crate::get_pkg_name;
 
   #[test]
   #[ignore]

@@ -1,4 +1,4 @@
-use testutils::{dbg_ref, os_cmd::presets::CargoFmt};
+use testutils::os_cmd::presets::CargoFmt;
 
 pub(crate) fn init_logger() {
   env_logger::builder()
