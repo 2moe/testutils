@@ -3,8 +3,13 @@ use std::io;
 use getset::{CopyGetters, Getters, Setters, WithSetters};
 use tap::{Pipe, Tap};
 
-use crate::os_cmd::{
-  CommandRepr, cow_str_into_cow_osstr, process::run_os_cmd, repr::TinyCmds,
+use crate::{
+  bool_ext::BoolExt,
+  os_cmd::{
+    CommandRepr, CommandSpawner, DecodedText, cow_str_into_cow_osstr,
+    process::{err_failed_to_run, run_os_cmd},
+    repr::TinyCmds,
+  },
 };
 
 /// Command runner with configurable preprocessing and execution strategies
@@ -18,8 +23,10 @@ use crate::os_cmd::{
 pub struct Runner<'a> {
   /// Command representation (raw string or pre-split slices)
   pub command: CommandRepr<'a>,
+  pub stdin_data: Option<&'a [u8]>,
+
   /// Whether to strip `//`-style line comments from raw command strings.
-  remove_comments: bool,
+  pub(crate) remove_comments: bool,
 
   /// Controls how (and whether) the command is surfaced for
   /// debugging/inspection.
@@ -57,6 +64,21 @@ where
   fn run(self) -> io::Result<()> {
     Runner::from(self).run_command()
   }
+
+  /// See also: [CommandSpawner::capture_stdout]
+  fn capture_stdout(self) -> io::Result<DecodedText> {
+    CommandSpawner::from(self).capture_stdout()
+  }
+
+  /// See also: [CommandSpawner::capture_stderr]
+  fn capture_stderr(self) -> io::Result<DecodedText> {
+    CommandSpawner::from(self).capture_stderr()
+  }
+
+  /// See also: [CommandSpawner::capture_stdout_and_stderr]
+  fn capture_stdout_and_stderr(self) -> io::Result<[DecodedText; 2]> {
+    CommandSpawner::from(self).capture_stdout_and_stderr()
+  }
 }
 
 impl<'a> RunnableCommand<'a> for Runner<'a> {}
@@ -65,6 +87,16 @@ impl Runner<'_> {
   /// see also: [RunnableCommand::run()]
   pub fn run_command(self) -> io::Result<()> {
     use RunnerInspection::{LogDebug, Stderr};
+
+    if self.get_stdin_data().is_some() {
+      return self
+        .pipe(CommandSpawner::from)
+        .spawn()?
+        .wait()?
+        .success()
+        .then_ok_or_else(|| err_failed_to_run(None));
+    }
+
     let Self { inspect_mode, .. } = self;
 
     // Phase 1: Command collection
@@ -114,6 +146,7 @@ impl Default for Runner<'_> {
       command: CommandRepr::default(),
       remove_comments: true,
       inspect_mode: RunnerInspection::default(),
+      stdin_data: None,
     }
   }
 }

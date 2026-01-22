@@ -8,8 +8,7 @@ use crate::os_cmd::MiniStr;
 /// use tap::Pipe;
 /// use testutils::os_cmd::collect_boxed_ministr_slice;
 ///
-/// let slice = ["cargo", "+nightly", "fmt"]
-///   .pipe(collect_boxed_ministr_slice);
+/// let slice = ["cargo", "+nightly", "fmt"].pipe(collect_boxed_ministr_slice);
 ///
 /// assert_eq!(slice.len(), 3);
 /// assert_eq!(slice[0], "cargo");

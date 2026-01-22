@@ -42,22 +42,12 @@ impl core::fmt::Display for DecodedText {
   }
 }
 
-// Converts any byte-like input into `DecodedText`.
-// - If the bytes are valid UTF-8, keep it lossless.
-// - Otherwise, decode with replacement (lossy) and mark `lossy = true`.
 impl<B> From<B> for DecodedText
 where
-  B: AsRef<[u8]>,
+  B: Into<Vec<u8>>,
 {
   fn from(value: B) -> Self {
-    let slice = value.as_ref();
-    match MiniStr::from_utf8(slice) {
-      Ok(s) => Self::new_lossless(s),
-      // Fallback: replace invalid UTF-8 with U+FFFD and mark lossy.
-      _ => slice
-        .pipe(MiniStr::from_utf8_lossy)
-        .pipe(Self::new_lossy),
-    }
+    Self::from_vec(value)
   }
 }
 
@@ -72,7 +62,7 @@ impl DecodedText {
     Self { lossy: true, data }
   }
 
-  /// Consumes self and return the underlying buffer data.
+  /// Consumes self and returns the underlying buffer data.
   pub fn into_compact_string(self) -> MiniStr {
     self.data
   }
@@ -80,6 +70,20 @@ impl DecodedText {
   /// Alias for `into_compact_string`.
   pub fn take_data(self) -> MiniStr {
     self.data
+  }
+
+  // Converts any byte-like input into `DecodedText`.
+  // - If the bytes are valid UTF-8, keep it lossless.
+  // - Otherwise, decode with replacement (lossy) and mark `lossy = true`.
+  pub fn from_slice<V: AsRef<[u8]>>(value: V) -> Self {
+    let slice = value.as_ref();
+
+    match MiniStr::from_utf8(slice) {
+      Ok(s) => Self::new_lossless(s),
+      _ => slice
+        .pipe(MiniStr::from_utf8_lossy)
+        .pipe(Self::new_lossy),
+    }
   }
 
   /// Decodes from a byte vector (or anything that can become one).
@@ -99,7 +103,7 @@ impl DecodedText {
     };
 
     if value.len() <= INLINE {
-      return value.into();
+      return Self::from_slice(value);
     }
 
     // Converts an owned `String` into the compact string storage.

@@ -12,7 +12,7 @@ fn build_and_open_rust_doc() -> io::Result<()> {
     --print target-list
   "#
   .pipe(Runner::from)
-  .into_tinyvec();
+  .run_command();
 
   Ok(())
 }

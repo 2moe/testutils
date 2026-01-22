@@ -15,13 +15,18 @@ use crate::{
 
 pub type CowOsStrVec<'a, const N: usize> = tinyvec::TinyVec<[Cow<'a, OsStr>; N]>;
 
-fn invalid_input_err(msg: &str) -> io::Error {
+fn err_invalid_input(msg: &str) -> io::Error {
   let kind = io::ErrorKind::InvalidInput;
   io::Error::new(kind, msg)
 }
 
-fn empty_command_err() -> io::Error {
-  invalid_input_err("empty command argv")
+fn err_empty_command() -> io::Error {
+  err_invalid_input("empty command argv")
+}
+
+pub(crate) fn err_failed_to_run(program: Option<&OsStr>) -> io::Error {
+  format!("Failed to run command: {program:?}") //
+    .pipe(io::Error::other)
 }
 
 /// Runs an OS command without capturing stdout/stderr (inherits the parent's
@@ -35,12 +40,11 @@ where
 
   let program = iter
     .next()
-    .ok_or_else(empty_command_err)?
+    .ok_or_else(err_empty_command)?
     .as_ref()
     .to_os_string();
 
-  let failed_to_run =
-    || format!("Failed to run command: {program:?}").pipe(io::Error::other);
+  let failed_to_run = || err_failed_to_run(Some(&program));
 
   Command::new(&program) // Main command creation
     .args(iter) // Remainder as arguments
@@ -183,7 +187,7 @@ impl<'a> CommandSpawner<'a> {
         // Split into (program, remaining args).
         iter
           .next()
-          .ok_or_else(empty_command_err)
+          .ok_or_else(err_empty_command)
           .map(|prog| (prog, iter))
       })?
       .pipe(|(prog, iter)| {
@@ -215,7 +219,7 @@ impl<'a> CommandSpawner<'a> {
       child
         .stdin
         .as_mut()
-        .ok_or_else(|| invalid_input_err("Failed to access child's stdin."))?
+        .ok_or_else(|| err_invalid_input("Failed to access child's stdin."))?
         .write_all(data)?
     }
     Ok(child)
@@ -251,6 +255,21 @@ impl<'a> CommandSpawner<'a> {
   ///
   /// This forces stdout to `Piped`, spawns the child, waits for completion,
   /// and decodes `output.stdout` into `DecodedText`.
+  ///
+  /// ## Example
+  ///
+  /// ```
+  /// # #[cfg(unix)] {
+  /// use testutils::{os_cmd::CommandSpawner, tap::Pipe};
+  ///
+  /// let v = ["printf", "%s", "hello"]
+  ///   .pipe(CommandSpawner::from)
+  ///   .capture_stdout()?;
+  /// assert_eq!(v.data(), "hello");
+  ///
+  /// # }
+  /// # Ok::<(), std::io::Error>(())
+  /// ```
   pub fn capture_stdout(self) -> io::Result<DecodedText> {
     self
       .capture_output(true, false)?
@@ -275,6 +294,23 @@ impl<'a> CommandSpawner<'a> {
   ///
   /// This forces both streams to `Piped`, waits for completion,
   /// and returns `[stdout, stderr]` in that order.
+  ///
+  /// ## Example
+  ///
+  /// ```
+  /// # #[cfg(unix)] {
+  /// use testutils::{os_cmd::CommandSpawner, tap::Pipe};
+  ///
+  /// let [stdout, stderr] = "wc -m"
+  ///   .pipe(CommandSpawner::from)
+  ///   .with_stdin_data(Some("world".as_bytes()))
+  ///   .capture_stdout_and_stderr()
+  ///   .expect("Failed to capture output");
+  ///
+  /// assert_eq!(&*stdout, "5\n");
+  /// assert_eq!(&*stderr, "");
+  /// # }
+  /// ```
   pub fn capture_stdout_and_stderr(self) -> io::Result<[DecodedText; 2]> {
     self
       .capture_output(true, true)?
@@ -289,33 +325,49 @@ where
   T: Into<Runner<'a>>,
 {
   fn from(value: T) -> Self {
-    value
-      .into()
-      .into_tinyvec()
+    let Runner {
+      command,
+      remove_comments,
+      stdin_data,
+      ..
+    } = value.into();
+
+    command
+      .into_tinyvec(remove_comments)
       .into_iter()
       .map(super::cow_str_into_cow_osstr)
       .collect::<CowOsStrVec<_>>()
       .pipe(|x| CommandSpawner::default().with_argv(x))
+      .with_stdin_data(stdin_data)
   }
 }
 
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::os_cmd::Runner;
+
+  #[cfg(target_os = "linux")]
+  #[test]
+  fn capture_stdout_hello() -> io::Result<()> {
+    let v = ["printf", "%s", "hello"]
+      .pipe(CommandSpawner::from)
+      .capture_stdout()?;
+    assert_eq!(v.data(), "hello");
+
+    Ok(())
+  }
 
   #[test]
-  fn new_spawner_from_runner() -> io::Result<()> {
-    let spawner = ["printf", "%s\n", "hello"]
-      .pipe(Runner::from)
-      .pipe(CommandSpawner::from);
+  #[cfg(target_os = "linux")]
+  fn pass_stdin_data() -> io::Result<()> {
+    let [stdout, stderr] = "wc -m"
+      .pipe(CommandSpawner::from)
+      .with_stdin_data(Some("world".as_bytes()))
+      .capture_stdout_and_stderr()?;
 
-    let stdout = spawner.capture_stdout()?;
+    assert_eq!(&*stdout, "5\n");
+    assert_eq!(&*stderr, "");
 
-    let v = stdout.into_compact_string();
-    println!("{v}");
-
-    // assert_eq!(spawner.cmd, ["printf", "%s\n", "hello"]);
     Ok(())
   }
 }
