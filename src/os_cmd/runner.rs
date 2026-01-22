@@ -87,17 +87,21 @@ impl Runner<'_> {
   /// see also: [RunnableCommand::run()]
   pub fn run_command(self) -> io::Result<()> {
     use RunnerInspection::{LogDebug, Stderr};
+    let Self { inspect_mode, .. } = self;
 
     if self.get_stdin_data().is_some() {
       return self
         .pipe(CommandSpawner::from)
+        .tap(|x| match inspect_mode {
+          LogDebug => log::debug!("{x:#?}"),
+          Stderr => eprintln!("{x:#?}"),
+          _ => {}
+        })
         .spawn()?
         .wait()?
         .success()
         .then_ok_or_else(|| err_failed_to_run(None));
     }
-
-    let Self { inspect_mode, .. } = self;
 
     // Phase 1: Command collection
     self

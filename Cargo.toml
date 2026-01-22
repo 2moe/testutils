@@ -50,4 +50,5 @@ tinyvec = { version = "1.10", optional = true, features = [
 all-features = true
 
 [dev-dependencies]
+collect-with = "0.0.2"
 env_logger = "0.11"

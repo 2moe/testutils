@@ -1,11 +1,9 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Default, Copy)]
 #[allow(non_camel_case_types)]
-/// rustc --print target-list | awk '{gsub(/-|\./, "_", $0); printf("%s,",$0) }'
-#[derive(Default)]
+/// rustc --print target-list
 pub enum RustcTarget {
   #[default]
   default,
-  //
   aarch64_apple_darwin,
   aarch64_apple_ios,
   aarch64_apple_ios_macabi,
@@ -338,17 +336,22 @@ impl RustcTarget {
       aarch64_pc_windows_msvc => "aarch64-pc-windows-msvc",
       aarch64_unknown_freebsd => "aarch64-unknown-freebsd",
       aarch64_unknown_fuchsia => "aarch64-unknown-fuchsia",
+      aarch64_unknown_helenos => "aarch64-unknown-helenos",
       aarch64_unknown_hermit => "aarch64-unknown-hermit",
       aarch64_unknown_illumos => "aarch64-unknown-illumos",
       aarch64_unknown_linux_gnu => "aarch64-unknown-linux-gnu",
       aarch64_unknown_linux_gnu_ilp32 => "aarch64-unknown-linux-gnu_ilp32",
       aarch64_unknown_linux_musl => "aarch64-unknown-linux-musl",
       aarch64_unknown_linux_ohos => "aarch64-unknown-linux-ohos",
+      aarch64_unknown_managarm_mlibc => "aarch64-unknown-managarm-mlibc",
       aarch64_unknown_netbsd => "aarch64-unknown-netbsd",
       aarch64_unknown_none => "aarch64-unknown-none",
       aarch64_unknown_none_softfloat => "aarch64-unknown-none-softfloat",
       aarch64_unknown_nto_qnx700 => "aarch64-unknown-nto-qnx700",
       aarch64_unknown_nto_qnx710 => "aarch64-unknown-nto-qnx710",
+      aarch64_unknown_nto_qnx710_iosock => "aarch64-unknown-nto-qnx710_iosock",
+      aarch64_unknown_nto_qnx800 => "aarch64-unknown-nto-qnx800",
+      aarch64_unknown_nuttx => "aarch64-unknown-nuttx",
       aarch64_unknown_openbsd => "aarch64-unknown-openbsd",
       aarch64_unknown_redox => "aarch64-unknown-redox",
       aarch64_unknown_teeos => "aarch64-unknown-teeos",
@@ -356,9 +359,13 @@ impl RustcTarget {
       aarch64_unknown_uefi => "aarch64-unknown-uefi",
       aarch64_uwp_windows_msvc => "aarch64-uwp-windows-msvc",
       aarch64_wrs_vxworks => "aarch64-wrs-vxworks",
+      aarch64_be_unknown_hermit => "aarch64_be-unknown-hermit",
       aarch64_be_unknown_linux_gnu => "aarch64_be-unknown-linux-gnu",
       aarch64_be_unknown_linux_gnu_ilp32 => "aarch64_be-unknown-linux-gnu_ilp32",
+      aarch64_be_unknown_linux_musl => "aarch64_be-unknown-linux-musl",
       aarch64_be_unknown_netbsd => "aarch64_be-unknown-netbsd",
+      aarch64_be_unknown_none_softfloat => "aarch64_be-unknown-none-softfloat",
+      amdgcn_amd_amdhsa => "amdgcn-amd-amdhsa",
       arm_linux_androideabi => "arm-linux-androideabi",
       arm_unknown_linux_gnueabi => "arm-unknown-linux-gnueabi",
       arm_unknown_linux_gnueabihf => "arm-unknown-linux-gnueabihf",
@@ -399,48 +406,57 @@ impl RustcTarget {
       armv7a_kmc_solid_asp3_eabihf => "armv7a-kmc-solid_asp3-eabihf",
       armv7a_none_eabi => "armv7a-none-eabi",
       armv7a_none_eabihf => "armv7a-none-eabihf",
+      armv7a_nuttx_eabi => "armv7a-nuttx-eabi",
+      armv7a_nuttx_eabihf => "armv7a-nuttx-eabihf",
+      armv7a_vex_v5 => "armv7a-vex-v5",
       armv7k_apple_watchos => "armv7k-apple-watchos",
       armv7r_none_eabi => "armv7r-none-eabi",
       armv7r_none_eabihf => "armv7r-none-eabihf",
       armv7s_apple_ios => "armv7s-apple-ios",
       armv8r_none_eabihf => "armv8r-none-eabihf",
-      // avr_unknown_gnu_atmega328 => "avr-unknown-gnu-atmega328",
+      avr_none => "avr-none",
       bpfeb_unknown_none => "bpfeb-unknown-none",
       bpfel_unknown_none => "bpfel-unknown-none",
       csky_unknown_linux_gnuabiv2 => "csky-unknown-linux-gnuabiv2",
       csky_unknown_linux_gnuabiv2hf => "csky-unknown-linux-gnuabiv2hf",
       hexagon_unknown_linux_musl => "hexagon-unknown-linux-musl",
       hexagon_unknown_none_elf => "hexagon-unknown-none-elf",
+      hexagon_unknown_qurt => "hexagon-unknown-qurt",
       i386_apple_ios => "i386-apple-ios",
-      // i586_pc_nto_qnx700 => "i586-pc-nto-qnx700",
-      // i586_pc_windows_msvc => "i586-pc-windows-msvc",
       i586_unknown_linux_gnu => "i586-unknown-linux-gnu",
       i586_unknown_linux_musl => "i586-unknown-linux-musl",
       i586_unknown_netbsd => "i586-unknown-netbsd",
+      i586_unknown_redox => "i586-unknown-redox",
       i686_apple_darwin => "i686-apple-darwin",
       i686_linux_android => "i686-linux-android",
+      i686_pc_nto_qnx700 => "i686-pc-nto-qnx700",
       i686_pc_windows_gnu => "i686-pc-windows-gnu",
       i686_pc_windows_gnullvm => "i686-pc-windows-gnullvm",
       i686_pc_windows_msvc => "i686-pc-windows-msvc",
       i686_unknown_freebsd => "i686-unknown-freebsd",
       i686_unknown_haiku => "i686-unknown-haiku",
+      i686_unknown_helenos => "i686-unknown-helenos",
       i686_unknown_hurd_gnu => "i686-unknown-hurd-gnu",
       i686_unknown_linux_gnu => "i686-unknown-linux-gnu",
       i686_unknown_linux_musl => "i686-unknown-linux-musl",
       i686_unknown_netbsd => "i686-unknown-netbsd",
       i686_unknown_openbsd => "i686-unknown-openbsd",
-      // i686_unknown_redox => "i686-unknown-redox",
       i686_unknown_uefi => "i686-unknown-uefi",
       i686_uwp_windows_gnu => "i686-uwp-windows-gnu",
       i686_uwp_windows_msvc => "i686-uwp-windows-msvc",
+      i686_win7_windows_gnu => "i686-win7-windows-gnu",
       i686_win7_windows_msvc => "i686-win7-windows-msvc",
       i686_wrs_vxworks => "i686-wrs-vxworks",
+      loongarch32_unknown_none => "loongarch32-unknown-none",
+      loongarch32_unknown_none_softfloat => "loongarch32-unknown-none-softfloat",
       loongarch64_unknown_linux_gnu => "loongarch64-unknown-linux-gnu",
       loongarch64_unknown_linux_musl => "loongarch64-unknown-linux-musl",
       loongarch64_unknown_linux_ohos => "loongarch64-unknown-linux-ohos",
       loongarch64_unknown_none => "loongarch64-unknown-none",
       loongarch64_unknown_none_softfloat => "loongarch64-unknown-none-softfloat",
       m68k_unknown_linux_gnu => "m68k-unknown-linux-gnu",
+      m68k_unknown_none_elf => "m68k-unknown-none-elf",
+      mips_mti_none_elf => "mips-mti-none-elf",
       mips_unknown_linux_gnu => "mips-unknown-linux-gnu",
       mips_unknown_linux_musl => "mips-unknown-linux-musl",
       mips_unknown_linux_uclibc => "mips-unknown-linux-uclibc",
@@ -449,6 +465,7 @@ impl RustcTarget {
       mips64_unknown_linux_muslabi64 => "mips64-unknown-linux-muslabi64",
       mips64el_unknown_linux_gnuabi64 => "mips64el-unknown-linux-gnuabi64",
       mips64el_unknown_linux_muslabi64 => "mips64el-unknown-linux-muslabi64",
+      mipsel_mti_none_elf => "mipsel-mti-none-elf",
       mipsel_sony_psp => "mipsel-sony-psp",
       mipsel_sony_psx => "mipsel-sony-psx",
       mipsel_unknown_linux_gnu => "mipsel-unknown-linux-gnu",
@@ -463,6 +480,7 @@ impl RustcTarget {
       msp430_none_elf => "msp430-none-elf",
       nvptx64_nvidia_cuda => "nvptx64-nvidia-cuda",
       powerpc_unknown_freebsd => "powerpc-unknown-freebsd",
+      powerpc_unknown_helenos => "powerpc-unknown-helenos",
       powerpc_unknown_linux_gnu => "powerpc-unknown-linux-gnu",
       powerpc_unknown_linux_gnuspe => "powerpc-unknown-linux-gnuspe",
       powerpc_unknown_linux_musl => "powerpc-unknown-linux-musl",
@@ -502,21 +520,26 @@ impl RustcTarget {
       riscv32imc_unknown_nuttx_elf => "riscv32imc-unknown-nuttx-elf",
       riscv64_linux_android => "riscv64-linux-android",
       riscv64_wrs_vxworks => "riscv64-wrs-vxworks",
+      riscv64a23_unknown_linux_gnu => "riscv64a23-unknown-linux-gnu",
       riscv64gc_unknown_freebsd => "riscv64gc-unknown-freebsd",
       riscv64gc_unknown_fuchsia => "riscv64gc-unknown-fuchsia",
       riscv64gc_unknown_hermit => "riscv64gc-unknown-hermit",
       riscv64gc_unknown_linux_gnu => "riscv64gc-unknown-linux-gnu",
       riscv64gc_unknown_linux_musl => "riscv64gc-unknown-linux-musl",
+      riscv64gc_unknown_managarm_mlibc => "riscv64gc-unknown-managarm-mlibc",
       riscv64gc_unknown_netbsd => "riscv64gc-unknown-netbsd",
       riscv64gc_unknown_none_elf => "riscv64gc-unknown-none-elf",
       riscv64gc_unknown_nuttx_elf => "riscv64gc-unknown-nuttx-elf",
       riscv64gc_unknown_openbsd => "riscv64gc-unknown-openbsd",
+      riscv64gc_unknown_redox => "riscv64gc-unknown-redox",
+      riscv64im_unknown_none_elf => "riscv64im-unknown-none-elf",
       riscv64imac_unknown_none_elf => "riscv64imac-unknown-none-elf",
       riscv64imac_unknown_nuttx_elf => "riscv64imac-unknown-nuttx-elf",
       s390x_unknown_linux_gnu => "s390x-unknown-linux-gnu",
       s390x_unknown_linux_musl => "s390x-unknown-linux-musl",
       sparc_unknown_linux_gnu => "sparc-unknown-linux-gnu",
       sparc_unknown_none_elf => "sparc-unknown-none-elf",
+      sparc64_unknown_helenos => "sparc64-unknown-helenos",
       sparc64_unknown_linux_gnu => "sparc64-unknown-linux-gnu",
       sparc64_unknown_netbsd => "sparc64-unknown-netbsd",
       sparc64_unknown_openbsd => "sparc64-unknown-openbsd",
@@ -525,6 +548,8 @@ impl RustcTarget {
       thumbv5te_none_eabi => "thumbv5te-none-eabi",
       thumbv6m_none_eabi => "thumbv6m-none-eabi",
       thumbv6m_nuttx_eabi => "thumbv6m-nuttx-eabi",
+      thumbv7a_nuttx_eabi => "thumbv7a-nuttx-eabi",
+      thumbv7a_nuttx_eabihf => "thumbv7a-nuttx-eabihf",
       thumbv7a_pc_windows_msvc => "thumbv7a-pc-windows-msvc",
       thumbv7a_uwp_windows_msvc => "thumbv7a-uwp-windows-msvc",
       thumbv7em_none_eabi => "thumbv7em-none-eabi",
@@ -544,9 +569,11 @@ impl RustcTarget {
       thumbv8m_main_nuttx_eabihf => "thumbv8m.main-nuttx-eabihf",
       wasm32_unknown_emscripten => "wasm32-unknown-emscripten",
       wasm32_unknown_unknown => "wasm32-unknown-unknown",
+      wasm32_wali_linux_musl => "wasm32-wali-linux-musl",
       wasm32_wasip1 => "wasm32-wasip1",
       wasm32_wasip1_threads => "wasm32-wasip1-threads",
       wasm32_wasip2 => "wasm32-wasip2",
+      wasm32_wasip3 => "wasm32-wasip3",
       wasm32v1_none => "wasm32v1-none",
       wasm64_unknown_unknown => "wasm64-unknown-unknown",
       x86_64_apple_darwin => "x86_64-apple-darwin",
@@ -556,7 +583,11 @@ impl RustcTarget {
       x86_64_apple_watchos_sim => "x86_64-apple-watchos-sim",
       x86_64_fortanix_unknown_sgx => "x86_64-fortanix-unknown-sgx",
       x86_64_linux_android => "x86_64-linux-android",
+      x86_64_lynx_lynxos178 => "x86_64-lynx-lynxos178",
+      x86_64_pc_cygwin => "x86_64-pc-cygwin",
       x86_64_pc_nto_qnx710 => "x86_64-pc-nto-qnx710",
+      x86_64_pc_nto_qnx710_iosock => "x86_64-pc-nto-qnx710_iosock",
+      x86_64_pc_nto_qnx800 => "x86_64-pc-nto-qnx800",
       x86_64_pc_solaris => "x86_64-pc-solaris",
       x86_64_pc_windows_gnu => "x86_64-pc-windows-gnu",
       x86_64_pc_windows_gnullvm => "x86_64-pc-windows-gnullvm",
@@ -566,6 +597,7 @@ impl RustcTarget {
       x86_64_unknown_freebsd => "x86_64-unknown-freebsd",
       x86_64_unknown_fuchsia => "x86_64-unknown-fuchsia",
       x86_64_unknown_haiku => "x86_64-unknown-haiku",
+      x86_64_unknown_helenos => "x86_64-unknown-helenos",
       x86_64_unknown_hermit => "x86_64-unknown-hermit",
       x86_64_unknown_hurd_gnu => "x86_64-unknown-hurd-gnu",
       x86_64_unknown_illumos => "x86_64-unknown-illumos",
@@ -575,6 +607,8 @@ impl RustcTarget {
       x86_64_unknown_linux_musl => "x86_64-unknown-linux-musl",
       x86_64_unknown_linux_none => "x86_64-unknown-linux-none",
       x86_64_unknown_linux_ohos => "x86_64-unknown-linux-ohos",
+      x86_64_unknown_managarm_mlibc => "x86_64-unknown-managarm-mlibc",
+      x86_64_unknown_motor => "x86_64-unknown-motor",
       x86_64_unknown_netbsd => "x86_64-unknown-netbsd",
       x86_64_unknown_none => "x86_64-unknown-none",
       x86_64_unknown_openbsd => "x86_64-unknown-openbsd",
@@ -583,6 +617,7 @@ impl RustcTarget {
       x86_64_unknown_uefi => "x86_64-unknown-uefi",
       x86_64_uwp_windows_gnu => "x86_64-uwp-windows-gnu",
       x86_64_uwp_windows_msvc => "x86_64-uwp-windows-msvc",
+      x86_64_win7_windows_gnu => "x86_64-win7-windows-gnu",
       x86_64_win7_windows_msvc => "x86_64-win7-windows-msvc",
       x86_64_wrs_vxworks => "x86_64-wrs-vxworks",
       x86_64h_apple_darwin => "x86_64h-apple-darwin",
@@ -592,7 +627,6 @@ impl RustcTarget {
       xtensa_esp32s2_none_elf => "xtensa-esp32s2-none-elf",
       xtensa_esp32s3_espidf => "xtensa-esp32s3-espidf",
       xtensa_esp32s3_none_elf => "xtensa-esp32s3-none-elf",
-      _ => "",
     }
   }
 }
@@ -605,11 +639,11 @@ impl AsRef<str> for RustcTarget {
 
 #[cfg(test)]
 mod tests {
-  use std::{fs, io, process::Command};
+  use std::{fs, io};
 
   use tap::{Pipe, Tap};
 
-  use crate::os_cmd::fmt_compact;
+  use crate::os_cmd::{CommandSpawner, fmt_compact};
   // use tap::Pipe;
   // use super::*;
 
@@ -640,10 +674,11 @@ mod tests {
       .unzip();
 
     format!(
-      r#"#[derive(Debug, Clone)]
+      r#"#[derive(Debug, Clone, Default, Copy)]
   #[allow(non_camel_case_types)]
   /// rustc --print target-list
   pub enum RustcTarget {{
+  #[default]
   default,
   {variants}
   }}
@@ -683,17 +718,18 @@ mod tests {
   fn conv_complete_list() -> io::Result<()> {
     // rustc --print target-list
     let tmp_file = std::env::temp_dir()
-      .join("tmp__targets.rs")
+      .join("tmp_targets.rs")
       .tap(|x| eprintln!("file: {x:?}"));
 
-    Command::new("rustc")
-      .args(["--print", "target-list"])
-      .output()?
-      .stdout
-      .pipe(String::from_utf8)
-      .map_err(|_| io::Error::last_os_error())?
-      .pipe_deref(conv_targte_list_to_rs_code)
-      .pipe(|x| fs::write(tmp_file, x))
+    r#"
+      rustc
+      --print target-list
+    "#
+    .pipe(CommandSpawner::from)
+    .capture_stdout()?
+    .into_compact_string()
+    .pipe_deref(conv_targte_list_to_rs_code)
+    .pipe(|x| fs::write(tmp_file, x))
 
     // Ok(())
   }
