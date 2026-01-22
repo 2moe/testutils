@@ -17,6 +17,8 @@ pub use runner::{RunnableCommand, Runner, RunnerInspection};
 mod process;
 pub use process::{CommandSpawner, StdioMode, run_os_cmd as run};
 
+pub mod argv;
+
 mod decoded;
 pub use decoded::DecodedText;
 

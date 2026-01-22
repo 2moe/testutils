@@ -17,7 +17,7 @@ use crate::os_cmd::{
 #[getset(set = "pub", set_with = "pub", get = "pub with_prefix")]
 pub struct Runner<'a> {
   /// Command representation (raw string or pre-split slices)
-  command: CommandRepr<'a>,
+  pub command: CommandRepr<'a>,
   /// Whether to strip `//`-style line comments from raw command strings.
   remove_comments: bool,
 
