@@ -155,14 +155,9 @@ impl<'a> CommandSpawner<'a> {
     }
   }
 
-  /// Spawns a child process from an argv-like iterator.
+  /// Spawns a child process
   ///
-  /// The iterator is interpreted as:
-  ///
-  /// - first item: program
-  /// - remaining items: args
-  ///
-  /// # Errors
+  /// ## Errors
   ///
   /// - Returns an error if `command` is `None`.
   /// - Returns an error if the iterator is empty (no program).
