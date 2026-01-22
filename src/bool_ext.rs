@@ -10,7 +10,7 @@ pub trait BoolExt {
   /// ## Simple
   ///
   /// ```
-  /// use testutils::traits::BoolExt;
+  /// use testutils::bool_ext::BoolExt;
   ///
   /// let value = true;
   /// let res: Result<(), &str> = value.then_ok_or_else(|| "error");
@@ -25,7 +25,7 @@ pub trait BoolExt {
   /// ```ignore
   /// use testutils::traits::Pipe;
   /// use testutils::get_pkg_name;
-  /// use testutils::testutils::traits::BoolExt;
+  /// use testutils::testutils::bool_ext::BoolExt;
   /// use std::io;
   ///
   /// let err = || "Failed to run `cargo rustdoc` command".pipe(io::Error::other);

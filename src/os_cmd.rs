@@ -1,4 +1,6 @@
-pub mod collect;
+mod collect;
+pub use collect::collect_boxed_ministr_slice;
+
 /// Provides configurable command runners such as `CargoDoc` and `CargoCmd`.
 pub mod presets;
 

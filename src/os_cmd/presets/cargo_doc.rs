@@ -39,7 +39,7 @@ impl<'a> RunnableCommand<'a> for CargoDoc<'a> {}
 ///   .with_enable_private_items(false) // default is true
 /// ;
 /// // dbg!(&cmd);
-/// assert_eq!(cmd.get_custom_cfg(), "docsrs");
+/// assert_eq!(cmd.get_custom_cfg(), &"docsrs");
 /// assert!(cmd.get_nightly()); // true
 /// assert!(!cmd.get_open()); // false
 /// assert!(!cmd.get_enable_private_items()); // false

@@ -13,7 +13,7 @@ impl<'a> RunnableCommand<'a> for CommandRepr<'a> {}
 /// - Slice: `Box<[&str]>` (e.g., `vec!["cargo", "+nightly",
 ///   "fmt"].into_boxed_slice()`)
 /// - OwnedSlice: `Box<[MiniStr]>` (e.g., `["cargo", "+nightly",
-///   "fmt"].into_iter().pipe(collect_to_ministr_slice)`)
+///   "fmt"].into_iter().pipe(collect_boxed_ministr_slice)`)
 #[derive(Debug, Clone)]
 pub enum CommandRepr<'a> {
   Raw(&'a str),
@@ -84,9 +84,9 @@ impl<'a> CommandRepr<'a> {
 /// ## Example
 ///
 /// ```
-/// # #[cfg(all(feature = "print_ext", feature = "re_exports_tap"))]
+/// # #[cfg(feature = "re_exports_tap")]
 /// # {
-/// use crate::{os_cmd::collect_raw, tap::Pipe};
+/// use testutils::{os_cmd::collect_raw, tap::Pipe};
 /// let into_vec = |s| collect_raw(s, true);
 /// let vec = r#"
 ///     // output "world" string

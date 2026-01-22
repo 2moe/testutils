@@ -2,8 +2,7 @@
 /*
 target
 tmp
-tmp.*
-tmp__.*
+tmp_*
 
 ## traditional linux & .*BSD$
 .directory

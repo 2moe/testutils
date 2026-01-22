@@ -109,7 +109,7 @@ impl RustFlags {
   /// ```
   /// use tap::Pipe;
   /// use testutils::os_cmd::{
-  ///   collect::collect_to_ministr_slice,
+  ///   collect_boxed_ministr_slice,
   ///   presets::cargo_build::flags::{LinkerFlavor, RustFlags},
   /// };
   ///
@@ -125,7 +125,7 @@ impl RustFlags {
   ///       "link-arg=-fdata-sections",
   ///     ]
   ///     .into_iter()
-  ///     .pipe(collect_to_ministr_slice),
+  ///     .pipe(collect_boxed_ministr_slice),
   ///   )
   ///   .into_vec();
   ///
@@ -231,7 +231,7 @@ impl Default for RustFlags {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::os_cmd::collect::collect_to_ministr_slice;
+  use crate::os_cmd::collect_boxed_ministr_slice;
 
   #[ignore]
   #[test]
@@ -257,7 +257,7 @@ mod tests {
       .with_other_flags(
         ["-L", "/lib"]
           .into_iter()
-          .pipe(collect_to_ministr_slice),
+          .pipe(collect_boxed_ministr_slice),
       )
       .into_vec();
 
@@ -279,7 +279,7 @@ mod tests {
           "link-arg=-fdata-sections",
         ]
         .into_iter()
-        .pipe(collect_to_ministr_slice),
+        .pipe(collect_boxed_ministr_slice),
       )
       .into_vec();
     assert_eq!(
