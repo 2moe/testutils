@@ -637,6 +637,37 @@ impl AsRef<str> for RustcTarget {
   }
 }
 
+#[derive(Debug, Clone)]
+pub enum CargoTarget {
+  Custom(crate::os_cmd::MiniStr),
+  RustcTarget(RustcTarget),
+}
+
+impl From<RustcTarget> for CargoTarget {
+  fn from(value: RustcTarget) -> Self {
+    Self::RustcTarget(value)
+  }
+}
+
+impl CargoTarget {
+  pub fn as_str(&self) -> &str {
+    match self {
+      Self::Custom(s) => s.as_str(),
+      Self::RustcTarget(t) => t.as_str(),
+    }
+  }
+}
+impl AsRef<str> for CargoTarget {
+  fn as_ref(&self) -> &str {
+    self.as_str()
+  }
+}
+impl Default for CargoTarget {
+  fn default() -> Self {
+    Self::RustcTarget(RustcTarget::default)
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use std::{fs, io};

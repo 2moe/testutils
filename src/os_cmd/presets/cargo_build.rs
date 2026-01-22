@@ -16,7 +16,7 @@ pub use cargo_profile::CargoProfile;
 pub mod flags;
 
 mod target_list;
-pub use target_list::RustcTarget;
+pub use target_list::{CargoTarget, RustcTarget};
 
 mod build_std;
 pub use build_std::BuildStd;
@@ -81,8 +81,7 @@ pub struct CargoCmd {
   sub_command: SubCmd,
   profile: CargoProfile,
   pkg: MiniStr,
-  // TODO: RustcTarget or Custom
-  target: RustcTarget,
+  target: CargoTarget,
   all_packages: bool,
   all_features: bool,
   no_default_features: bool,
@@ -289,7 +288,7 @@ mod tests {
     let vec = CargoCmd::default()
       .with_nightly(true)
       .with_pkg(get_pkg_name!().into())
-      .with_target(RustcTarget::aarch64_linux_android)
+      .with_target(RustcTarget::aarch64_linux_android.into())
       .with_build_std(
         BuildStd::default()
           .with_alloc(true)
