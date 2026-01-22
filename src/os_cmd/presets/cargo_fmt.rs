@@ -1,7 +1,7 @@
 use getset::{CopyGetters, WithSetters};
 use tap::Pipe;
 
-use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::StrVec};
+use crate::os_cmd::{CommandRepr, RunnableCommand, presets::StrVec};
 impl RunnableCommand<'_> for CargoFmt {}
 
 #[derive(Debug, Clone, WithSetters, CopyGetters)]
@@ -56,13 +56,6 @@ impl From<CargoFmt> for CommandRepr<'_> {
       .collect::<StrVec<3>>()
       .into_boxed_slice()
       .pipe(CommandRepr::Slice)
-  }
-}
-
-impl From<CargoFmt> for Runner<'_> {
-  fn from(value: CargoFmt) -> Self {
-    Self::default() //
-      .with_command(value.into())
   }
 }
 

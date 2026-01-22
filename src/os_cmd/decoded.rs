@@ -1,7 +1,7 @@
-use std::borrow::Cow;
-
 use getset::{Getters, WithSetters};
 use tap::Pipe;
+
+use crate::os_cmd::MiniStr;
 
 /// Decoded child-process output text, supporting both lossless and lossy UTF-8.
 ///
@@ -25,27 +25,98 @@ use tap::Pipe;
 pub struct DecodedText {
   pub lossy: bool,
   #[getset(get = "pub")]
-  data: String,
+  data: MiniStr,
 }
 
-impl From<Vec<u8>> for DecodedText {
-  /// SAFETY: see also [String::from_utf8_lossy_owned]
-  fn from(value: Vec<u8>) -> Self {
-    match String::from_utf8_lossy(&value) {
-      Cow::Owned(string) => DecodedText::new_lossy(string),
-      _ => {
-        unsafe { String::from_utf8_unchecked(value) }.pipe(DecodedText::new_lossless)
-      }
+impl core::ops::Deref for DecodedText {
+  type Target = MiniStr;
+
+  fn deref(&self) -> &Self::Target {
+    &self.data
+  }
+}
+
+impl core::fmt::Display for DecodedText {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    f.write_str(&self.data)
+  }
+}
+
+impl<B> From<B> for DecodedText
+where
+  B: AsRef<[u8]>,
+{
+  fn from(value: B) -> Self {
+    let slice = value.as_ref();
+    match MiniStr::from_utf8(slice) {
+      Ok(s) => Self::new_lossless(s),
+      _ => slice
+        .pipe(MiniStr::from_utf8_lossy)
+        .pipe(Self::new_lossy),
     }
   }
 }
 
 impl DecodedText {
-  pub fn new_lossless(data: String) -> Self {
+  pub fn new_lossless(data: MiniStr) -> Self {
     Self { lossy: false, data }
   }
 
-  pub fn new_lossy(data: String) -> Self {
+  pub fn new_lossy(data: MiniStr) -> Self {
     Self { lossy: true, data }
+  }
+
+  /// Consumes the struct and returns the underlying `CompactString`.
+  pub fn into_compact_string(self) -> MiniStr {
+    self.data
+  }
+
+  /// Same as [Self::into_compact_string]
+  pub fn take_data(self) -> MiniStr {
+    self.data
+  }
+
+  fn contains_lossy_char(s: &str) -> bool {
+    s.contains('\u{FFFD}')
+  }
+
+  pub fn from_vec<V: Into<Vec<u8>>>(v: V) -> Self {
+    use std::borrow::Cow;
+
+    let value = v.into();
+
+    const INLINE: usize = match usize::BITS {
+      32 => 12,
+      _ => 24,
+    };
+
+    if value.len() <= INLINE {
+      return value.into();
+    }
+
+    let into_data = |s| MiniStr::from_string_buffer(s);
+
+    match String::from_utf8_lossy(&value) {
+      Cow::Owned(s) => s
+        .pipe(into_data)
+        .pipe(Self::new_lossy),
+      // SAFETY: see also [String::from_utf8_lossy_owned]
+      _ => unsafe { String::from_utf8_unchecked(value) }
+        .pipe(into_data)
+        .pipe(Self::new_lossless),
+    }
+  }
+
+  pub fn from_string<S: Into<String>>(s: S) -> Self {
+    let value = s.into();
+    let lossy = Self::contains_lossy_char(&value);
+    let data = MiniStr::from_string_buffer(value);
+    Self { lossy, data }
+  }
+
+  pub fn from_compact_string<S: Into<MiniStr>>(s: S) -> Self {
+    let data = s.into();
+    let lossy = Self::contains_lossy_char(&data);
+    Self { lossy, data }
   }
 }

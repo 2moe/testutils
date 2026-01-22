@@ -101,25 +101,12 @@ pub struct CommandSpawner<'a> {
   stderr: StdioMode,
 
   /// An argv-like iterator where the first item is the program.
-  ///
-  /// If this is `None`, `spawn()` fails with an "empty command" error.
-  argv: CowOsStrVec<'a, 4>,
+  argv: CowOsStrVec<'a, 9>,
 
   /// Optional bytes to write into the child's stdin after spawning.
   ///
   /// When set, stdin will be forced to `Piped` so `write_all` can succeed.
   stdin_data: Option<&'a [u8]>,
-}
-
-impl<'a> From<Runner<'a>> for CommandSpawner<'a> {
-  fn from(value: Runner<'a>) -> Self {
-    value
-      .into_tinyvec()
-      .into_iter()
-      .map(super::cow_str_into_cow_osstr)
-      .collect::<CowOsStrVec<_>>()
-      .pipe(|x| CommandSpawner::default().with_argv(x))
-  }
 }
 
 impl<'a> Default for CommandSpawner<'a> {
@@ -268,7 +255,7 @@ impl<'a> CommandSpawner<'a> {
     self
       .capture_output(true, false)?
       .stdout
-      .pipe(DecodedText::from)
+      .pipe(DecodedText::from_vec)
       .pipe(Ok)
   }
 
@@ -280,7 +267,7 @@ impl<'a> CommandSpawner<'a> {
     self
       .capture_output(false, true)?
       .stderr
-      .pipe(DecodedText::from)
+      .pipe(DecodedText::from_vec)
       .pipe(Ok)
   }
 
@@ -292,7 +279,43 @@ impl<'a> CommandSpawner<'a> {
     self
       .capture_output(true, true)?
       .pipe(|o| [o.stdout, o.stderr])
-      .map(DecodedText::from)
+      .map(DecodedText::from_vec)
       .pipe(Ok)
+  }
+}
+
+impl<'a, T> From<T> for CommandSpawner<'a>
+where
+  T: Into<Runner<'a>>,
+{
+  fn from(value: T) -> Self {
+    value
+      .into()
+      .into_tinyvec()
+      .into_iter()
+      .map(super::cow_str_into_cow_osstr)
+      .collect::<CowOsStrVec<_>>()
+      .pipe(|x| CommandSpawner::default().with_argv(x))
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::os_cmd::Runner;
+
+  #[test]
+  fn new_spawner_from_runner() -> io::Result<()> {
+    let spawner = ["printf", "%s\n", "hello"]
+      .pipe(Runner::from)
+      .pipe(CommandSpawner::from);
+
+    let stdout = spawner.capture_stdout()?;
+
+    let v = stdout.into_compact_string();
+    println!("{v}");
+
+    // assert_eq!(spawner.cmd, ["printf", "%s\n", "hello"]);
+    Ok(())
   }
 }

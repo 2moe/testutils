@@ -3,7 +3,7 @@ use alloc::borrow::Cow;
 use tap::Pipe;
 
 use crate::os_cmd::{MiniStr, RunnableCommand, presets::CowStrVec};
-pub(crate) type TinyCmds<'a> = CowStrVec<'a, 10>;
+pub(crate) type TinyCmds<'a> = CowStrVec<'a, 9>;
 
 impl<'a> RunnableCommand<'a> for CommandRepr<'a> {}
 
@@ -45,6 +45,13 @@ impl<'a> From<Box<[&'a str]>> for CommandRepr<'a> {
     Self::Slice(value)
   }
 }
+
+impl<'a, const N: usize> From<[&'a str; N]> for CommandRepr<'a> {
+  fn from(value: [&'a str; N]) -> Self {
+    Self::Slice(value.into())
+  }
+}
+
 impl<'a> From<&'a str> for CommandRepr<'a> {
   fn from(value: &'a str) -> Self {
     Self::Raw(value)
@@ -77,7 +84,7 @@ impl<'a> CommandRepr<'a> {
 /// - Stack-allocated for small commands (≤10 elements)
 /// - Fallback to heap for large commands automatically
 ///
-/// > size: in x64 Linux, `TinyVec<[Cow<'_, str>; 10]>`: 248
+/// > size: in x64 Linux, `TinyVec<[Cow<'_, str>; 9]>`: 224
 ///
 ///
 /// ## Example

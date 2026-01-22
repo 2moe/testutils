@@ -5,7 +5,7 @@ use compact_str::ToCompactString;
 use getset::{Getters, WithSetters};
 use tap::{Pipe, Tap};
 
-use crate::os_cmd::{CommandRepr, MiniStr, RunnableCommand, Runner, fmt_compact};
+use crate::os_cmd::{CommandRepr, MiniStr, RunnableCommand, fmt_compact};
 
 mod sub_cmd;
 pub use sub_cmd::SubCmd;
@@ -259,12 +259,12 @@ impl From<CargoCmd> for CommandRepr<'_> {
   }
 }
 
-impl From<CargoCmd> for Runner<'_> {
-  fn from(value: CargoCmd) -> Self {
-    Self::default() //
-      .with_command(value.into())
-  }
-}
+// impl From<CargoCmd> for Runner<'_> {
+//   fn from(value: CargoCmd) -> Self {
+//     Self::default() //
+//       .with_command(value.into())
+//   }
+// }
 
 #[cfg(test)]
 mod tests {

@@ -4,7 +4,7 @@ use getset::{CopyGetters, Getters, Setters, WithSetters};
 use tap::{Pipe, Tap};
 
 use crate::os_cmd::{
-  CommandRepr, MiniStr, cow_str_into_cow_osstr, process::run_os_cmd, repr::TinyCmds,
+  CommandRepr, cow_str_into_cow_osstr, process::run_os_cmd, repr::TinyCmds,
 };
 
 /// Command runner with configurable preprocessing and execution strategies
@@ -99,16 +99,6 @@ impl<'a> Runner<'a> {
   }
 }
 
-/// Conversion trait implementation
-impl<'a> From<CommandRepr<'a>> for Runner<'a> {
-  fn from(command: CommandRepr<'a>) -> Self {
-    Self {
-      command,
-      ..Default::default()
-    }
-  }
-}
-
 impl Default for Runner<'_> {
   /// Default:
   ///
@@ -128,26 +118,15 @@ impl Default for Runner<'_> {
   }
 }
 
-impl From<Vec<MiniStr>> for Runner<'_> {
-  fn from(value: Vec<MiniStr>) -> Self {
-    Self::default().with_command(value.into())
-  }
-}
-
-impl From<Box<[MiniStr]>> for Runner<'_> {
-  fn from(value: Box<[MiniStr]>) -> Self {
-    Self::default().with_command(value.into())
-  }
-}
-impl<'a> From<Box<[&'a str]>> for Runner<'a> {
-  fn from(value: Box<[&'a str]>) -> Self {
-    Self::default().with_command(value.into())
-  }
-}
-
-impl<'a> From<&'a str> for Runner<'a> {
-  fn from(value: &'a str) -> Self {
-    Self::default().with_command(value.into())
+impl<'a, T> From<T> for Runner<'a>
+where
+  T: Into<CommandRepr<'a>>,
+{
+  fn from(value: T) -> Self {
+    Self {
+      command: value.into(),
+      ..Default::default()
+    }
   }
 }
 

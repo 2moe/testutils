@@ -1,7 +1,7 @@
 use getset::{Getters, Setters, WithSetters};
 use tap::Pipe;
 
-use crate::os_cmd::{CommandRepr, RunnableCommand, Runner, presets::StrVec};
+use crate::os_cmd::{CommandRepr, RunnableCommand, presets::StrVec};
 impl<'a> RunnableCommand<'a> for CargoDoc<'a> {}
 
 #[derive(Debug, Clone, WithSetters, Setters, Getters)]
@@ -140,12 +140,12 @@ impl<'a> From<CargoDoc<'a>> for CommandRepr<'a> {
   }
 }
 
-impl<'a> From<CargoDoc<'a>> for Runner<'a> {
-  fn from(value: CargoDoc<'a>) -> Self {
-    Self::default() //
-      .with_command(value.into())
-  }
-}
+// impl<'a> From<CargoDoc<'a>> for Runner<'a> {
+//   fn from(value: CargoDoc<'a>) -> Self {
+//     Self::default() //
+//       .with_command(value.into())
+//   }
+// }
 
 impl Default for CargoDoc<'_> {
   /// Default:
