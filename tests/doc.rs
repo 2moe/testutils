@@ -41,7 +41,7 @@ fn serve_doc() -> io::Result<()> {
     ",
   )
   .pipe_deref(Runner::from)
-  .tap(|_| eprintln!("http://127.0.0.1:8080/{pkg}"))
+  .tap(|_| eprintln!("http://127.0.0.1:8080/{pkg}/index.html"))
   .run()
   .inspect_err(|e| eprintln!("{e:?};\n cargo binstall miniserve"))
 }

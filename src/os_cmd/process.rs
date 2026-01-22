@@ -64,7 +64,24 @@ impl From<StdioMode> for Stdio {
   }
 }
 
-/// Spawn OS commands from argv-like iterators, with configurable stdio.
+/// `CommandSpawner` is a small builder that treats an iterator as an
+/// `argv`-like sequence:
+///
+/// - The **first** item is the program to execute.
+/// - The remaining items are passed as arguments, without going through a
+///   shell.
+///
+/// In addition, you may provide `stdin_data`, which (if present) will be
+/// written into the child's stdin after spawning. When `stdin_data` is set,
+/// stdin is forced to `Piped` so the parent can write to it.
+///
+/// # Notes
+///
+/// - If you pipe **both** stdin (and write a lot of data) **and** pipe
+///   stdout/stderr, be aware of potential deadlocks if the child writes enough
+///   output to fill its pipe buffer while the parent is blocked writing stdin.
+///   For large payloads, consider writing stdin from another thread while
+///   concurrently reading output.
 #[derive(Debug, Clone, PartialEq, Eq, WithSetters, Setters, Getters)]
 #[getset(set = "pub", set_with = "pub", get = "pub with_prefix")]
 pub struct CommandSpawner<'a, I>
@@ -72,10 +89,21 @@ where
   I: IntoIterator,
   I::Item: AsRef<OsStr>,
 {
+  /// child's stdin mode.
   stdin: StdioMode,
+  /// child's stdout mode.
   stdout: StdioMode,
+  /// child's stderr mode.
   stderr: StdioMode,
+
+  /// An argv-like iterator where the first item is the program.
+  ///
+  /// If this is `None`, `spawn()` fails with an "empty command" error.
   command: Option<I>,
+
+  /// Optional bytes to write into the child's stdin after spawning.
+  ///
+  /// When set, stdin will be forced to `Piped` so `write_all` can succeed.
   stdin_data: Option<&'a [u8]>,
 }
 
@@ -84,15 +112,15 @@ where
   I: IntoIterator,
   I::Item: AsRef<OsStr>,
 {
-  /// default:
+  /// Creates a spawner with "inherit everything" stdio, and no command/data.
   ///
   /// ```ignore
   /// Self {
-  ///     stdin: Inherit,
-  ///     stdout: Inherit,
-  ///     stderr: Inherit,
-  ///     command: None,
-  ///     stdin_data: None,
+  ///   stdin:  Inherit,
+  ///   stdout: Inherit,
+  ///   stderr: Inherit,
+  ///   command: None,
+  ///   stdin_data: None,
   /// }
   /// ```
   fn default() -> Self {
@@ -112,6 +140,13 @@ where
   I: IntoIterator,
   I::Item: AsRef<OsStr>,
 {
+  /// Computes the effective stdin mode.
+  ///
+  /// If `stdin_data` is present, stdin must be `Piped` so we can write to it.
+  /// Otherwise, preserve the configured stdin mode as-is.
+  ///
+  /// This function is kept small and pure to stay friendly to a pipeline/FP
+  /// style.
   #[inline]
   fn effective_stdin_mode(has_data: bool, stdin: StdioMode) -> StdioMode {
     use StdioMode::*;
@@ -122,9 +157,20 @@ where
     }
   }
 
-  /// Spawn a child from an argv-like iterator:
+  /// Spawns a child process from an argv-like iterator.
+  ///
+  /// The iterator is interpreted as:
+  ///
   /// - first item: program
   /// - remaining items: args
+  ///
+  /// # Errors
+  ///
+  /// - Returns an error if `command` is `None`.
+  /// - Returns an error if the iterator is empty (no program).
+  /// - Propagates any I/O error from `Command::spawn`.
+  /// - If `stdin_data` is set, returns an error if `stdin` is not available
+  ///   (e.g., misconfigured to not be piped).
   pub fn spawn(self) -> io::Result<Child> {
     let Self {
       command,
@@ -141,12 +187,14 @@ where
       .ok_or_else(empty_command_err)?
       .into_iter()
       .pipe(|mut iter| {
+        // Split into (program, remaining args).
         iter
-          .next() // first arg
-          .ok_or_else(empty_command_err) // Convert Option to Result
+          .next()
+          .ok_or_else(empty_command_err)
           .map(|prog| (prog, iter))
       })?
       .pipe(|(prog, iter)| {
+        // Build and spawn the process without going through a shell.
         prog
           .pipe(Command::new)
           .args(iter)
@@ -155,9 +203,17 @@ where
           .stderr(stderr_mode)
           .spawn()
       })?
+      // Optionally write stdin data, then return the (possibly modified) child.
       .pipe(|child| Self::write_child_stdin(child, stdin_data))
   }
 
+  /// Writes `stdin_data` to the child's stdin (if present) and return the
+  /// child.
+  ///
+  /// # Errors
+  ///
+  /// Returns an error if `stdin_data` is `Some(_)` but the child's stdin handle
+  /// is not available (typically because stdin was not piped).
   pub fn write_child_stdin(
     mut child: Child,
     stdin_data: Option<&[u8]>,
@@ -166,12 +222,20 @@ where
       child
         .stdin
         .as_mut()
-        .ok_or_else(|| invalid_input_err("Failed to get stdin"))?
-        .write_all(data)?
+        .ok_or_else(|| invalid_input_err("Failed to access child's stdin."))?
+        .write_all(data)?;
     }
     Ok(child)
   }
 
+  /// Spawns the process and capture output according to the requested streams.
+  ///
+  /// - When `cap_out` is true, stdout is forced to `Piped`.
+  /// - When `cap_err` is true, stderr is forced to `Piped`.
+  ///
+  /// This returns the raw `std::process::Output` (bytes for stdout/stderr).
+  /// Higher-level helpers (`capture_stdout`, `capture_stderr`,
+  /// `capture_stdout_and_stderr`) decode those bytes into `DecodedText`.
   #[inline]
   fn capture_output(
     self,
@@ -190,6 +254,10 @@ where
     .wait_with_output()
   }
 
+  /// Captures stdout as decoded text.
+  ///
+  /// This forces stdout to `Piped`, spawns the child, waits for completion,
+  /// and decodes `output.stdout` into `DecodedText`.
   pub fn capture_stdout(self) -> io::Result<DecodedText> {
     self
       .capture_output(true, false)?
@@ -198,6 +266,10 @@ where
       .pipe(Ok)
   }
 
+  /// Captures stderr as decoded text.
+  ///
+  /// This forces stderr to `Piped`, spawns the child, waits for completion,
+  /// and decodes `output.stderr` into `DecodedText`.
   pub fn capture_stderr(self) -> io::Result<DecodedText> {
     self
       .capture_output(false, true)?
@@ -206,6 +278,10 @@ where
       .pipe(Ok)
   }
 
+  /// Captures both stdout and stderr as decoded text.
+  ///
+  /// This forces both streams to `Piped`, waits for completion,
+  /// and returns `[stdout, stderr]` in that order.
   pub fn capture_stdout_and_stderr(self) -> io::Result<[DecodedText; 2]> {
     self
       .capture_output(true, true)?
