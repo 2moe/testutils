@@ -15,10 +15,10 @@ fn empty_command_err() -> io::Error {
 
 /// Runs an OS command without capturing stdout/stderr (inherits the parent's
 /// stdio).
-pub fn run_os_cmd<I, S>(into_iter: I) -> io::Result<()>
+pub fn run_os_cmd<I>(into_iter: I) -> io::Result<()>
 where
-  I: IntoIterator<Item = S>,
-  S: AsRef<OsStr>,
+  I: IntoIterator,
+  I::Item: AsRef<OsStr>,
 {
   let mut iter = into_iter.into_iter();
 
@@ -64,10 +64,10 @@ impl From<StdioMode> for Stdio {
 /// Spawn OS commands from argv-like iterators, with configurable stdio.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, WithSetters, Setters, Getters)]
 #[getset(set = "pub", set_with = "pub", get = "pub with_prefix")]
-pub struct CommandSpawner<I, S>
+pub struct CommandSpawner<I>
 where
-  I: IntoIterator<Item = S>,
-  S: AsRef<OsStr>,
+  I: IntoIterator,
+  I::Item: AsRef<OsStr>,
 {
   stdin: StdioMode,
   stdout: StdioMode,
@@ -75,10 +75,10 @@ where
   command: Option<I>,
 }
 
-impl<I, S> Default for CommandSpawner<I, S>
+impl<I> Default for CommandSpawner<I>
 where
-  I: IntoIterator<Item = S>,
-  S: AsRef<OsStr>,
+  I: IntoIterator,
+  I::Item: AsRef<OsStr>,
 {
   /// default:
   ///
@@ -101,10 +101,10 @@ where
   }
 }
 
-impl<I, S> CommandSpawner<I, S>
+impl<I> CommandSpawner<I>
 where
-  I: IntoIterator<Item = S>,
-  S: AsRef<OsStr>,
+  I: IntoIterator,
+  I::Item: AsRef<OsStr>,
 {
   /// Spawn a child from an argv-like iterator:
   /// - first item: program

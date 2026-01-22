@@ -124,7 +124,6 @@ impl RustFlags {
   ///       "-C",
   ///       "link-arg=-fdata-sections",
   ///     ]
-  ///     .into_iter()
   ///     .pipe(collect_boxed_ministr_slice),
   ///   )
   ///   .into_vec();

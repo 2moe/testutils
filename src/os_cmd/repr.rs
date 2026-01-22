@@ -13,7 +13,7 @@ impl<'a> RunnableCommand<'a> for CommandRepr<'a> {}
 /// - Slice: `Box<[&str]>` (e.g., `vec!["cargo", "+nightly",
 ///   "fmt"].into_boxed_slice()`)
 /// - OwnedSlice: `Box<[MiniStr]>` (e.g., `["cargo", "+nightly",
-///   "fmt"].into_iter().pipe(collect_boxed_ministr_slice)`)
+///   "fmt"].pipe(collect_boxed_ministr_slice)`)
 #[derive(Debug, Clone)]
 pub enum CommandRepr<'a> {
   Raw(&'a str),
