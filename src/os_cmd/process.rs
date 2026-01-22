@@ -1,3 +1,4 @@
+use alloc::borrow::Cow;
 use std::{
   ffi::OsStr,
   io::{self, Write},
@@ -7,11 +8,18 @@ use std::{
 use getset::{Getters, Setters, WithSetters};
 use tap::Pipe;
 
-use crate::{bool_ext::BoolExt, os_cmd::DecodedText};
+use crate::{
+  bool_ext::BoolExt,
+  os_cmd::{DecodedText, Runner},
+};
+
+pub type CowOsStrVec<'a, const N: usize> = tinyvec::TinyVec<[Cow<'a, OsStr>; N]>;
 
 fn invalid_input_err(msg: &str) -> io::Error {
-  io::Error::new(io::ErrorKind::InvalidInput, msg)
+  let kind = io::ErrorKind::InvalidInput;
+  io::Error::new(kind, msg)
 }
+
 fn empty_command_err() -> io::Error {
   invalid_input_err("empty command argv")
 }
@@ -84,11 +92,7 @@ impl From<StdioMode> for Stdio {
 ///   concurrently reading output.
 #[derive(Debug, Clone, PartialEq, Eq, WithSetters, Setters, Getters)]
 #[getset(set = "pub", set_with = "pub", get = "pub with_prefix")]
-pub struct CommandSpawner<'a, I>
-where
-  I: IntoIterator,
-  I::Item: AsRef<OsStr>,
-{
+pub struct CommandSpawner<'a> {
   /// child's stdin mode.
   stdin: StdioMode,
   /// child's stdout mode.
@@ -99,7 +103,7 @@ where
   /// An argv-like iterator where the first item is the program.
   ///
   /// If this is `None`, `spawn()` fails with an "empty command" error.
-  argv: Option<I>,
+  argv: CowOsStrVec<'a, 4>,
 
   /// Optional bytes to write into the child's stdin after spawning.
   ///
@@ -107,11 +111,18 @@ where
   stdin_data: Option<&'a [u8]>,
 }
 
-impl<'a, I> Default for CommandSpawner<'a, I>
-where
-  I: IntoIterator,
-  I::Item: AsRef<OsStr>,
-{
+impl<'a> From<Runner<'a>> for CommandSpawner<'a> {
+  fn from(value: Runner<'a>) -> Self {
+    value
+      .into_tinyvec()
+      .into_iter()
+      .map(super::cow_str_into_cow_osstr)
+      .collect::<CowOsStrVec<_>>()
+      .pipe(|x| CommandSpawner::default().with_argv(x))
+  }
+}
+
+impl<'a> Default for CommandSpawner<'a> {
   /// Creates a spawner with "inherit everything" stdio, and no command/data.
   ///
   /// ```ignore
@@ -119,7 +130,7 @@ where
   ///   stdin:  Inherit,
   ///   stdout: Inherit,
   ///   stderr: Inherit,
-  ///   argv: None,
+  ///   argv: Default::default(),
   ///   stdin_data: None,
   /// }
   /// ```
@@ -129,17 +140,13 @@ where
       stdin: Inherit,
       stdout: Inherit,
       stderr: Inherit,
-      argv: None,
+      argv: Default::default(),
       stdin_data: None,
     }
   }
 }
 
-impl<'a, I> CommandSpawner<'a, I>
-where
-  I: IntoIterator,
-  I::Item: AsRef<OsStr>,
-{
+impl<'a> CommandSpawner<'a> {
   /// Computes the effective stdin mode.
   ///
   /// If `stdin_data` is present, stdin must be `Piped` so we can write to it.
@@ -184,7 +191,6 @@ where
     let stdin_mode = Self::effective_stdin_mode(stdin_data.is_some(), stdin);
 
     command
-      .ok_or_else(empty_command_err)?
       .into_iter()
       .pipe(|mut iter| {
         // Split into (program, remaining args).
@@ -223,7 +229,7 @@ where
         .stdin
         .as_mut()
         .ok_or_else(|| invalid_input_err("Failed to access child's stdin."))?
-        .write_all(data)?;
+        .write_all(data)?
     }
     Ok(child)
   }

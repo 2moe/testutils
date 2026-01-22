@@ -15,9 +15,7 @@ mod runner;
 pub use runner::{RunnableCommand, Runner, RunnerInspection};
 
 mod process;
-pub use process::{CommandSpawner, StdioMode, run_os_cmd as run};
-
-pub mod argv;
+pub use process::{CommandSpawner, CowOsStrVec, StdioMode, run_os_cmd as run};
 
 mod decoded;
 pub use decoded::DecodedText;
@@ -46,11 +44,5 @@ mod tests {
     // runner.set_trim(false);
     // runner.set_remove_comments(true);
     // assert_eq!(run_os_cmd(runner.as_str()), Ok(ExitStatus::Success));
-  }
-
-  #[ignore]
-  #[test]
-  fn test_cargo_doc_runner() {
-    // CommandRepr::new_cargo_rustdoc_cmd("");
   }
 }
