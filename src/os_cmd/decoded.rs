@@ -118,25 +118,4 @@ impl DecodedText {
         .pipe(Self::new_lossless),
     }
   }
-
-  // /// Heuristic: treat presence of U+FFFD as "lossy".
-  // /// Note: valid text may also legitimately contain this character.
-  // fn contains_lossy_char(s: &str) -> bool {
-  //   s.contains('\u{FFFD}')
-  // }
-  // /// Builds from a `String` (or anything that can become one).
-  // /// Lossy is detected by checking for the replacement character.
-  // pub fn from_string<S: Into<String>>(s: S) -> Self {
-  //   let value = s.into();
-  //   let lossy = Self::contains_lossy_char(&value);
-  //   let data = MiniStr::from_string_buffer(value);
-  //   Self { lossy, data }
-  // }
-  // /// Builds from a compact string type.
-  // /// Lossy is detected by checking for the replacement character.
-  // pub fn from_compact_string<S: Into<MiniStr>>(s: S) -> Self {
-  //   let data = s.into();
-  //   let lossy = Self::contains_lossy_char(&data);
-  //   Self { lossy, data }
-  // }
 }
