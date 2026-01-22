@@ -29,11 +29,11 @@ pub struct DecodedText {
 }
 
 impl From<Vec<u8>> for DecodedText {
+  /// SAFETY: see also [String::from_utf8_lossy_owned]
   fn from(value: Vec<u8>) -> Self {
     match String::from_utf8_lossy(&value) {
       Cow::Owned(string) => DecodedText::new_lossy(string),
       _ => {
-        // SAFETY: see also [String::from_utf8_lossy_owned]
         unsafe { String::from_utf8_unchecked(value) }.pipe(DecodedText::new_lossless)
       }
     }

@@ -54,7 +54,7 @@ macro_rules! dbg_ref {
     match &$val {
       tmp => {
         log::debug!(
-          "{name}: {type_name} = {tmp:?}",
+          "{name}: {type_name} = {tmp:#?}",
           name = stringify!($val),
           type_name = core::any::type_name_of_val(tmp),
         );

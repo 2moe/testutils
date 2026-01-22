@@ -65,7 +65,6 @@ impl<'a> CommandRepr<'a> {
         .collect(),
       Self::OwnedSlice(items) => items
         .into_iter()
-        .map(|x| x.into_string())
         .map(Cow::from)
         .collect(),
     }
@@ -122,6 +121,10 @@ pub fn collect_raw(raw: &str, remove_comments: bool) -> TinyCmds<'_> {
 ///   - To ensure both conditions return the same type, this function wraps the
 ///     returned string in `Cow`.
 pub fn remove_comments_and_collect(s: &str) -> Cow<'_, str> {
+  if !s.contains("//") {
+    return s.into();
+  }
+
   s.lines()
     // Since shell commands can contain `\"\n{space} \"`,
     // don't use `.map(|x| x.trim())` here.
