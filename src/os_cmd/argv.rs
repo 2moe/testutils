@@ -96,6 +96,6 @@ where
       .into_iter()
       .map(IntoArgvItem::into_argv_item)
       .collect::<I>()
-      .pipe(|argv| CommandSpawner::default().with_command(Some(argv)))
+      .pipe(|argv| CommandSpawner::default().with_argv(Some(argv)))
   }
 }

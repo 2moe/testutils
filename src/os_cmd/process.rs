@@ -99,7 +99,7 @@ where
   /// An argv-like iterator where the first item is the program.
   ///
   /// If this is `None`, `spawn()` fails with an "empty command" error.
-  command: Option<I>,
+  argv: Option<I>,
 
   /// Optional bytes to write into the child's stdin after spawning.
   ///
@@ -119,7 +119,7 @@ where
   ///   stdin:  Inherit,
   ///   stdout: Inherit,
   ///   stderr: Inherit,
-  ///   command: None,
+  ///   argv: None,
   ///   stdin_data: None,
   /// }
   /// ```
@@ -129,7 +129,7 @@ where
       stdin: Inherit,
       stdout: Inherit,
       stderr: Inherit,
-      command: None,
+      argv: None,
       stdin_data: None,
     }
   }
@@ -173,7 +173,7 @@ where
   ///   (e.g., misconfigured to not be piped).
   pub fn spawn(self) -> io::Result<Child> {
     let Self {
-      command,
+      argv: command,
       stdin_data,
       stdin,
       stdout: stdout_mode,
