@@ -42,6 +42,9 @@ impl core::fmt::Display for DecodedText {
   }
 }
 
+// Converts any byte-like input into `DecodedText`.
+// - If the bytes are valid UTF-8, keep it lossless.
+// - Otherwise, decode with replacement (lossy) and mark `lossy = true`.
 impl<B> From<B> for DecodedText
 where
   B: AsRef<[u8]>,
@@ -50,6 +53,7 @@ where
     let slice = value.as_ref();
     match MiniStr::from_utf8(slice) {
       Ok(s) => Self::new_lossless(s),
+      // Fallback: replace invalid UTF-8 with U+FFFD and mark lossy.
       _ => slice
         .pipe(MiniStr::from_utf8_lossy)
         .pipe(Self::new_lossy),
@@ -58,33 +62,37 @@ where
 }
 
 impl DecodedText {
+  /// Creates a decoded text value that came from valid UTF-8 (no replacement).
   pub fn new_lossless(data: MiniStr) -> Self {
     Self { lossy: false, data }
   }
 
+  /// Creates a decoded text value where invalid UTF-8 may have been replaced.
   pub fn new_lossy(data: MiniStr) -> Self {
     Self { lossy: true, data }
   }
 
-  /// Consumes the struct and returns the underlying `CompactString`.
+  /// Consumes self and return the underlying buffer data.
   pub fn into_compact_string(self) -> MiniStr {
     self.data
   }
 
-  /// Same as [Self::into_compact_string]
+  /// Alias for `into_compact_string`.
   pub fn take_data(self) -> MiniStr {
     self.data
   }
 
-  fn contains_lossy_char(s: &str) -> bool {
-    s.contains('\u{FFFD}')
-  }
-
+  /// Decodes from a byte vector (or anything that can become one).
+  ///
+  /// Small buffers go through the generic `From<[u8]>` path.
+  /// Larger buffers avoid extra copies by decoding into an owned `String`
+  /// first.
   pub fn from_vec<V: Into<Vec<u8>>>(v: V) -> Self {
     use std::borrow::Cow;
 
     let value = v.into();
 
+    // Inline threshold for small strings (tuned by pointer width).
     const INLINE: usize = match usize::BITS {
       32 => 12,
       _ => 24,
@@ -94,29 +102,41 @@ impl DecodedText {
       return value.into();
     }
 
+    // Converts an owned `String` into the compact string storage.
     let into_data = |s| MiniStr::from_string_buffer(s);
 
     match String::from_utf8_lossy(&value) {
+      // Invalid UTF-8 was replaced, so this is lossy.
       Cow::Owned(s) => s
         .pipe(into_data)
         .pipe(Self::new_lossy),
-      // SAFETY: see also [String::from_utf8_lossy_owned]
+
+      // Valid UTF-8: reuse the original bytes without re-checking.
+      // SAFETY: `from_utf8_lossy` returned `Borrowed`, so `value` is valid UTF-8.
       _ => unsafe { String::from_utf8_unchecked(value) }
         .pipe(into_data)
         .pipe(Self::new_lossless),
     }
   }
 
-  pub fn from_string<S: Into<String>>(s: S) -> Self {
-    let value = s.into();
-    let lossy = Self::contains_lossy_char(&value);
-    let data = MiniStr::from_string_buffer(value);
-    Self { lossy, data }
-  }
-
-  pub fn from_compact_string<S: Into<MiniStr>>(s: S) -> Self {
-    let data = s.into();
-    let lossy = Self::contains_lossy_char(&data);
-    Self { lossy, data }
-  }
+  // /// Heuristic: treat presence of U+FFFD as "lossy".
+  // /// Note: valid text may also legitimately contain this character.
+  // fn contains_lossy_char(s: &str) -> bool {
+  //   s.contains('\u{FFFD}')
+  // }
+  // /// Builds from a `String` (or anything that can become one).
+  // /// Lossy is detected by checking for the replacement character.
+  // pub fn from_string<S: Into<String>>(s: S) -> Self {
+  //   let value = s.into();
+  //   let lossy = Self::contains_lossy_char(&value);
+  //   let data = MiniStr::from_string_buffer(value);
+  //   Self { lossy, data }
+  // }
+  // /// Builds from a compact string type.
+  // /// Lossy is detected by checking for the replacement character.
+  // pub fn from_compact_string<S: Into<MiniStr>>(s: S) -> Self {
+  //   let data = s.into();
+  //   let lossy = Self::contains_lossy_char(&data);
+  //   Self { lossy, data }
+  // }
 }
