@@ -99,3 +99,17 @@ where
       .pipe(|argv| CommandSpawner::default().with_argv(Some(argv)))
   }
 }
+
+impl<'a, I> CommandSpawner<'a, I>
+where
+  I: FromIterator<ArgvItem<'a>>,
+  I: IntoIterator<Item = ArgvItem<'a>>,
+{
+  pub fn from_argv<T>(argv: T) -> Self
+  where
+    T: IntoIterator,
+    T::Item: IntoArgvItem<'a>,
+  {
+    Argv(argv).into()
+  }
+}
