@@ -23,7 +23,7 @@ pub trait BoolExt {
   /// ## A more complex example
   ///
   /// ```ignore
-  /// use testutils::traits::Pipe;
+  /// use testutils::tap::Pipe;
   /// use testutils::get_pkg_name;
   /// use testutils::testutils::bool_ext::BoolExt;
   /// use std::io;

@@ -80,7 +80,7 @@ assert_eq!(
 
 ```rust
 use std::io;
-use testutils::{get_pkg_name, os_cmd::Runner, traits::Pipe};
+use testutils::{get_pkg_name, os_cmd::Runner, tap::Pipe};
 
 #[ignore]
 #[test]
@@ -155,7 +155,7 @@ fn build_and_open_rust_doc() -> io::Result<()> {
 我們可以透過 `.with_[欄位名稱]` 來配置它
 
 ```rust
-use testutils::{dbg_ref, os_cmd::presets::CargoDoc, traits::Tap};
+use testutils::{dbg_ref, os_cmd::presets::CargoDoc, tap::Tap};
 
 use crate::normal::init_logger;
 

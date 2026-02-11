@@ -1,5 +1,15 @@
 # ChangeLog
 
+## 0.0.7 (2026-02-11)
+
+- CommandSpawner:
+  - add environment variables and working directory support
+
+Breaking changes:
+
+- RunnableCommand Trait:
+  - remove `capture_*()`
+
 ## 0.0.6 (2026-01-21)
 
 - CommandRepr:

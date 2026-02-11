@@ -108,7 +108,7 @@ Build commands using commented configuration strings with automatic comment stri
 
 ```rust
 use std::io;
-use testutils::{get_pkg_name, os_cmd::Runner, traits::Pipe};
+use testutils::{get_pkg_name, os_cmd::Runner, tap::Pipe};
 
 #[ignore]
 #[test]
@@ -184,7 +184,7 @@ fn build_and_open_rust_doc() -> io::Result<()> {
 **Configuration Methods**:
 
 ```rust
-use testutils::{dbg_ref, os_cmd::presets::CargoDoc, traits::Tap};
+use testutils::{dbg_ref, os_cmd::presets::CargoDoc, tap::Tap};
 
 #[ignore]
 #[test]
