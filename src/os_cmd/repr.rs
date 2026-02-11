@@ -87,7 +87,7 @@ impl<'a> CommandRepr<'a> {
 /// Parses raw command string into executable components
 ///
 /// Why TinyVec:
-/// - Stack-allocated for small commands (≤10 elements)
+/// - Stack-allocated for small commands (<=9 elements)
 /// - Fallback to heap for large commands automatically
 ///
 /// > size: in x64 Linux, `TinyVec<[Cow<'_, str>; 9]>`: 224

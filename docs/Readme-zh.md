@@ -253,7 +253,7 @@ use testutils::{
 let vec = CargoCmd::default()
   .with_nightly(true)
   .with_pkg(get_pkg_name!().into())
-  .with_target(RustcTarget::aarch64_linux_android)
+  .with_target(RustcTarget::aarch64_linux_android.into())
   .with_build_std(
     BuildStd::default()
       .with_alloc(true)

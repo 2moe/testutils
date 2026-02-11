@@ -276,7 +276,7 @@ CargoCmd {
 let vec = CargoCmd::default()
   .with_nightly(true)  // Enables nightly channel features
   .with_pkg(get_pkg_name!().into())  // Macro-based package detection
-  .with_target(RustcTarget::aarch64_linux_android)  // enum Target
+  .with_target(RustcTarget::aarch64_linux_android.into())  // enum Target
   .with_build_std(  // Custom stdlib components
     BuildStd::default()
       .with_alloc(true)
