@@ -5,7 +5,7 @@ use std::io;
 
 use testutils::{
   get_pkg_name,
-  os_cmd::{RunnableCommand, Runner, presets::CargoDoc},
+  os_cmd::{self, RunnableCommand, Runner, presets::CargoDoc},
   tap::{Pipe, Tap},
 };
 
@@ -18,7 +18,8 @@ fn build_doc() -> io::Result<()> {
       .with_enable_private_items(false)
       // .with_all_features(false)
       .with_open(false) // Disable to maintain compatibility with remote SSH.
-      .run()
+      .into_tinyvec()
+      .pipe(os_cmd::run)
   };
 
   get_pkg_name!().pipe(build)
@@ -41,7 +42,7 @@ fn serve_doc() -> io::Result<()> {
     ",
   )
   .pipe_deref(Runner::from)
-  .tap(|_| eprintln!("http://127.0.0.1:8080/{pkg}/index.html"))
+  .tap(|_| eprintln!("\x1b[35mhttp://127.0.0.1:8080/{pkg}/index.html\x1b[0m"))
   .run()
   .inspect_err(|e| eprintln!("{e:?};\n cargo binstall miniserve"))
 }

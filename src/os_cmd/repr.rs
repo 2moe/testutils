@@ -46,6 +46,12 @@ impl<'a> From<Box<[&'a str]>> for CommandRepr<'a> {
   }
 }
 
+impl<'a> From<Vec<&'a str>> for CommandRepr<'a> {
+  fn from(value: Vec<&'a str>) -> Self {
+    Self::Slice(value.into_boxed_slice())
+  }
+}
+
 impl<'a, const N: usize> From<[&'a str; N]> for CommandRepr<'a> {
   fn from(value: [&'a str; N]) -> Self {
     Self::Slice(value.into())

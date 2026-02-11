@@ -1,7 +1,9 @@
 use alloc::borrow::Cow;
 use std::{
+  collections::HashMap,
   ffi::OsStr,
   io::{self, Write},
+  path::PathBuf,
   process::{Child, Command, Stdio},
 };
 
@@ -10,7 +12,7 @@ use tap::Pipe;
 
 use crate::{
   bool_ext::BoolExt,
-  os_cmd::{DecodedText, Runner},
+  os_cmd::{DecodedText, MiniStr, Runner},
 };
 
 pub type CowOsStrVec<'a, const N: usize> = tinyvec::TinyVec<[Cow<'a, OsStr>; N]>;
@@ -111,6 +113,12 @@ pub struct CommandSpawner<'a> {
   ///
   /// When set, stdin will be forced to `Piped` so `write_all` can succeed.
   stdin_data: Option<&'a [u8]>,
+
+  /// environment variables
+  envs: Option<HashMap<MiniStr, Cow<'a, OsStr>>>,
+
+  /// working directory for the child process.
+  working_dir: Option<PathBuf>,
 }
 
 impl<'a> Default for CommandSpawner<'a> {
@@ -123,6 +131,8 @@ impl<'a> Default for CommandSpawner<'a> {
   ///   stderr: Inherit,
   ///   argv: Default::default(),
   ///   stdin_data: None,
+  ///   envs: None,
+  ///   working_dir: None,
   /// }
   /// ```
   fn default() -> Self {
@@ -133,6 +143,8 @@ impl<'a> Default for CommandSpawner<'a> {
       stderr: Inherit,
       argv: Default::default(),
       stdin_data: None,
+      envs: None,
+      working_dir: None,
     }
   }
 }
@@ -171,6 +183,8 @@ impl<'a> CommandSpawner<'a> {
       stdin,
       stdout: stdout_mode,
       stderr: stderr_mode,
+      envs: environment_vars,
+      working_dir,
       ..
     } = self;
 
@@ -193,6 +207,14 @@ impl<'a> CommandSpawner<'a> {
           .stdin(stdin_mode)
           .stdout(stdout_mode)
           .stderr(stderr_mode)
+          .pipe(|x| match environment_vars {
+            Some(map) => x.envs(map),
+            _ => x,
+          })
+          .pipe(|x| match working_dir {
+            Some(p) => x.current_dir(p),
+            _ => x,
+          })
           .spawn()
       })?
       // Optionally write stdin data, then return the (possibly modified) child.
@@ -229,7 +251,7 @@ impl<'a> CommandSpawner<'a> {
   /// Higher-level helpers (`capture_stdout`, `capture_stderr`,
   /// `capture_stdout_and_stderr`) decode those bytes into `DecodedText`.
   #[inline]
-  fn capture_output(
+  pub fn capture_raw_output(
     self,
     cap_out: bool,
     cap_err: bool,
@@ -267,7 +289,7 @@ impl<'a> CommandSpawner<'a> {
   /// ```
   pub fn capture_stdout(self) -> io::Result<DecodedText> {
     self
-      .capture_output(true, false)?
+      .capture_raw_output(true, false)?
       .stdout
       .pipe(DecodedText::from_vec)
       .pipe(Ok)
@@ -279,7 +301,7 @@ impl<'a> CommandSpawner<'a> {
   /// and decodes `output.stderr` into `DecodedText`.
   pub fn capture_stderr(self) -> io::Result<DecodedText> {
     self
-      .capture_output(false, true)?
+      .capture_raw_output(false, true)?
       .stderr
       .pipe(DecodedText::from_vec)
       .pipe(Ok)
@@ -308,7 +330,7 @@ impl<'a> CommandSpawner<'a> {
   /// ```
   pub fn capture_stdout_and_stderr(self) -> io::Result<[DecodedText; 2]> {
     self
-      .capture_output(true, true)?
+      .capture_raw_output(true, true)?
       .pipe(|o| [o.stdout, o.stderr])
       .map(DecodedText::from_vec)
       .pipe(Ok)

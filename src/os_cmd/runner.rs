@@ -1,4 +1,4 @@
-use std::io;
+use std::{borrow::Cow, collections::HashMap, ffi::OsStr, io, path::PathBuf};
 
 use getset::{CopyGetters, Getters, Setters, WithSetters};
 use tap::{Pipe, Tap};
@@ -6,7 +6,7 @@ use tap::{Pipe, Tap};
 use crate::{
   bool_ext::BoolExt,
   os_cmd::{
-    CommandRepr, CommandSpawner, DecodedText, cow_str_into_cow_osstr,
+    CommandRepr, CommandSpawner, MiniStr, cow_str_into_cow_osstr,
     process::{err_failed_to_run, run_os_cmd},
     repr::TinyCmds,
   },
@@ -65,19 +65,14 @@ where
     Runner::from(self).run_command()
   }
 
-  /// See also: [CommandSpawner::capture_stdout]
-  fn capture_stdout(self) -> io::Result<DecodedText> {
-    CommandSpawner::from(self).capture_stdout()
-  }
-
-  /// See also: [CommandSpawner::capture_stderr]
-  fn capture_stderr(self) -> io::Result<DecodedText> {
-    CommandSpawner::from(self).capture_stderr()
-  }
-
-  /// See also: [CommandSpawner::capture_stdout_and_stderr]
-  fn capture_stdout_and_stderr(self) -> io::Result<[DecodedText; 2]> {
-    CommandSpawner::from(self).capture_stdout_and_stderr()
+  fn into_spawner(
+    self,
+    envs: Option<HashMap<MiniStr, Cow<'a, OsStr>>>,
+    working_dir: Option<PathBuf>,
+  ) -> CommandSpawner<'a> {
+    CommandSpawner::from(self)
+      .with_envs(envs)
+      .with_working_dir(working_dir)
   }
 }
 
