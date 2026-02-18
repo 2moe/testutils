@@ -1,4 +1,4 @@
-use std::{borrow::Cow, collections::HashMap, ffi::OsStr, io, path::PathBuf};
+use std::{io, path::PathBuf};
 
 use getset::{CopyGetters, Getters, Setters, WithSetters};
 use tap::{Pipe, Tap};
@@ -67,7 +67,7 @@ where
 
   fn into_spawner(
     self,
-    envs: Option<HashMap<MiniStr, Cow<'a, OsStr>>>,
+    envs: Option<Box<[(MiniStr, MiniStr)]>>,
     working_dir: Option<PathBuf>,
   ) -> CommandSpawner<'a> {
     CommandSpawner::from(self)

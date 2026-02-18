@@ -1,6 +1,5 @@
 use alloc::borrow::Cow;
 use std::{
-  collections::HashMap,
   ffi::OsStr,
   io::{self, Write},
   path::PathBuf,
@@ -115,7 +114,7 @@ pub struct CommandSpawner<'a> {
   stdin_data: Option<&'a [u8]>,
 
   /// environment variables
-  envs: Option<HashMap<MiniStr, Cow<'a, OsStr>>>,
+  envs: Option<Box<[(MiniStr, MiniStr)]>>,
 
   /// working directory for the child process.
   working_dir: Option<PathBuf>,
