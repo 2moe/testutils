@@ -33,7 +33,7 @@ macro_rules! const_lower_case {
   };
 }
 
-/// Expands to an uppercase Cargo cfg environment variable name.
+/// Expands to an uppercase Cargo cfg environment variable.
 ///
 /// Example:
 ///   cargo_cfg!(target_env)
