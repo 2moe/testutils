@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.0.9 (2026-02-19)
+
+- add `const_macros` feature
+
 ## 0.0.7 (2026-02-11)
 
 - CommandSpawner:

@@ -28,6 +28,9 @@ pub mod os_cmd;
 
 mod macros;
 
+#[cfg(feature = "const_macros")]
+pub mod const_macros;
+
 #[cfg(feature = "bool_ext")]
 pub mod bool_ext;
 

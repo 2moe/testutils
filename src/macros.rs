@@ -1,11 +1,3 @@
-/// `env!("CARGO_PKG_NAME")`
-#[macro_export]
-macro_rules! get_pkg_name {
-  () => {
-    env!("CARGO_PKG_NAME")
-  };
-}
-
 /// Generates a list of tuples containing field names and their values
 ///
 /// ## Example
