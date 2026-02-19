@@ -1,5 +1,11 @@
 # ChangeLog
 
+## 0.0.11 (2026-02-19)
+
+Breaking changes:
+
+- `const_macros` => `const_str`
+
 ## 0.0.9 (2026-02-19)
 
 - add `const_macros` feature

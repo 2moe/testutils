@@ -1,6 +1,6 @@
 [package]
 name = "testutils"
-version = "0.0.10"
+version = "0.0.11"
 rust-version = "1.85"
 edition = "2024"
 license = "Apache-2.0"
@@ -21,7 +21,7 @@ default = [ #
     "bool_ext",
     "print_ext",
     "re_exports_tap",
-    "const_macros",
+    "const_str",
 ]
 # ------------
 bool_ext = []
@@ -35,7 +35,7 @@ os_cmd = [ #
     "dep:tinyvec",
     "dep:compact_str",
 ]
-const_macros = ["dep:const-str"]
+const_str = ["dep:const-str"]
 
 [dependencies]
 compact_str = { version = "0.9", default-features = false, optional = true }
