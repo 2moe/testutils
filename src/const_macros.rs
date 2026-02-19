@@ -14,9 +14,10 @@ macro_rules! get_pkg_name {
 /// expands to:
 ///   "XDG_DATA_HOME"
 #[macro_export]
+#[cfg(feature = "const_macros")]
 macro_rules! const_upper_case {
   ($s:expr) => {
-    ::const_str::convert_ascii_case!(upper, $s)
+    $crate::const_macros::const_str::convert_ascii_case!(upper, $s)
   };
 }
 
@@ -25,9 +26,10 @@ macro_rules! const_upper_case {
 /// expands to:
 ///   "xdg_data_home"
 #[macro_export]
+#[cfg(feature = "const_macros")]
 macro_rules! const_lower_case {
   ($s:expr) => {
-    ::const_str::convert_ascii_case!(lower, $s)
+    $crate::const_macros::const_str::convert_ascii_case!(lower, $s)
   };
 }
 
@@ -38,9 +40,10 @@ macro_rules! const_lower_case {
 /// expands to:
 ///   "CARGO_CFG_TARGET_ENV"
 #[macro_export]
+#[cfg(feature = "const_macros")]
 macro_rules! cargo_cfg {
   ($name:ident) => {
-    ::const_str::convert_ascii_case! {
+    $crate::const_macros::const_str::convert_ascii_case! {
       upper,
       concat!["cargo_cfg_", stringify!($name)]
     }
@@ -54,9 +57,10 @@ macro_rules! cargo_cfg {
 /// expands to:
 ///   "CARGO_PKG_VERSION"
 #[macro_export]
+#[cfg(feature = "const_macros")]
 macro_rules! cargo_pkg {
   ($name:ident) => {
-    ::const_str::convert_ascii_case! {
+    $crate::const_macros::const_str::convert_ascii_case! {
       upper,
       concat!["cargo_pkg_", stringify!($name)]
     }
