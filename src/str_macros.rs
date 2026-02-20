@@ -51,20 +51,3 @@ macro_rules! cargo_cfg {
     ::std::env::var(env_name)
   }};
 }
-
-/// Expands to an uppercase Cargo pkg environment variable name.
-///
-/// Example:
-///   cargo_pkg_str!(version)
-/// expands to:
-///   "CARGO_PKG_VERSION"
-#[macro_export]
-#[cfg(feature = "const_str")]
-macro_rules! cargo_pkg_str {
-  ($name:ident) => {
-    $crate::str_macros::const_str::convert_ascii_case! {
-      upper,
-      concat!["cargo_pkg_", stringify!($name)]
-    }
-  };
-}
